@@ -14,7 +14,7 @@ and the Flutter guide for
 
 A package which allows to enter text which can be collapsed and expanded. Moreover, it will automatically parse the urls present in the text into a hyperlink.
 
-![Demo Gif](https://github.com/aashish2604/parsed_readmore/blob/main/assets/parsed-readme_converted.gif)
+![Demo Gif](https://github.com/aashish2604/parsed_readmore/blob/main/assets/resized_parsed_readmore.gif)
 
 # Features
 
