@@ -10,10 +10,13 @@ For general information about developing packages, see the Dart guide for
 and the Flutter guide for
 [developing packages and plugins](https://flutter.dev/developing-packages). 
 -->
+# ***Parsed Readmore***
 
 A package which allows to enter text which can be collapsed and expanded. Moreover, it will automatically parse the urls present in the text into a hyperlink.
 
-## Features
+
+
+# Features
 
 * Expandable and Collapsable text.
 * Trimming can either be done on basis of length or number of lines.
@@ -21,10 +24,14 @@ A package which allows to enter text which can be collapsed and expanded. Moreov
 * Automatically parses the urls present in the text into hyperlinks which launches the browser on click event.
 * All the text components including the parsed urls, delimiter, clickable texts, etc can be given seperate custom styles.
 
-## Installation
+# Installation
 
 ```dart
 dart pub add parsed_readmore
+```
+
+```dart
+import 'package:parsed_readmore/parsed_readmore.dart';
 ```
 <!-- 
 ### OR
@@ -33,11 +40,11 @@ dart pub add parsed_readmore
 
 ``` -->
 
-## Usage
+# Usage
 
 ### For detailed implementation refer to the example
 
-The code below will implement all features of the widget with the default values :
+The code below will implement all features of the widget with the default values which are :
 * trimMode = TrimMode.length
 * delimiter = ' ...'
 * trimLength = 240
@@ -65,8 +72,7 @@ ParsedReadMore(
 )
 ```
 
-## Additional information
+# Issues
 
-TODO: Tell users more about the package: where to find more information, how to 
-contribute to the package, how to file issues, what response they can expect 
-from the package authors, and more.
+Please file any issues, bugs or feature request as an issue on the GitHub page. Moreover, feel free to contact me through email [aashish.260401@gmail.com](aashish.260401@gmail.com).
+
