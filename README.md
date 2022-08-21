@@ -10,9 +10,9 @@ For general information about developing packages, see the Dart guide for
 and the Flutter guide for
 [developing packages and plugins](https://flutter.dev/developing-packages). 
 -->
-# ***Parsed Readmore***
+# **Parsed Readmore**
 
-A package which allows to enter text which can be collapsed and expanded. Moreover, it will automatically parse the urls present in the text into a hyperlink.
+A package which allows to enter text which can be collapsed and expanded. Moreover, it will automatically parse the urls present in the text into hyperlinks.
 
 ![Demo Gif](https://github.com/aashish2604/parsed_readmore/blob/main/assets/resized_parsed_readmore.gif)
 
@@ -26,13 +26,16 @@ A package which allows to enter text which can be collapsed and expanded. Moreov
 
 # Installation
 
+Run this command in your terminal
 ```dart
-dart pub add parsed_readmore
+flutter pub add parsed_readmore
+```
+Or add it manually in your project's pubspec.yaml (and run an implicit flutter pub get):
+```dart
+dependencies:
+  parsed_readmore: 
 ```
 
-```dart
-import 'package:parsed_readmore/parsed_readmore.dart';
-```
 <!-- 
 ### OR
 
@@ -40,9 +43,14 @@ import 'package:parsed_readmore/parsed_readmore.dart';
 
 ``` -->
 
-# Usage
+# Usage Example
 
 ### For detailed implementation refer to the example
+
+#### Import parsed_readmore.dart
+```dart
+import 'package:parsed_readmore/parsed_readmore.dart';
+```
 
 The code below will implement all features of the widget with the default values which are :
 * trimMode = TrimMode.length
@@ -74,5 +82,5 @@ ParsedReadMore(
 
 # Issues
 
-Please file any issues, bugs or feature request as an issue on the GitHub page. Moreover, feel free to contact me through email [aashish.260401@gmail.com](aashish.260401@gmail.com).
+Please file any issues, bugs or feature request as an issue on the GitHub page. If you have some idea for feature upgrade, feel free to contact me through email [aashish.260401@gmail.com](aashish.260401@gmail.com).
 
