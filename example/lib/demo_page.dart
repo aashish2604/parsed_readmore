@@ -1,0 +1,75 @@
+import 'package:flutter/material.dart';
+import 'package:parsed_readmore/parsed_readmore.dart';
+
+class ParsedReadMoreDemo extends StatefulWidget {
+  const ParsedReadMoreDemo({Key? key}) : super(key: key);
+
+  @override
+  State<ParsedReadMoreDemo> createState() => _ParsedReadMoreDemoState();
+}
+
+class _ParsedReadMoreDemoState extends State<ParsedReadMoreDemo> {
+  final TextStyle textStyle = const TextStyle(fontSize: 20);
+  final TextStyle labelTextStyle = const TextStyle(
+      fontSize: 24, color: Colors.grey, fontWeight: FontWeight.bold);
+  static const String inputData =
+      "We know that https://google.com is a very useful website. (rti..notNow should not be parsed) But Instagram.com is more fun to use. Nevertheless we should not forget the contribution of wikipedia.com played in the growth of web. If you like this package do consider liking it so that it could be useful to more developers like you. Thank you for your time";
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Parsed Read More'),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Default",
+                style: labelTextStyle,
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+
+              //Package widget using only default values.
+              const ParsedReadMore(inputData),
+
+              const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Divider(
+                  thickness: 3,
+                ),
+              ),
+              Text(
+                'Custom',
+                style: labelTextStyle,
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+
+              //Package widget using custom values
+              ParsedReadMore(
+                inputData,
+                urlTextStyle: textStyle.copyWith(
+                    color: Colors.green, decoration: TextDecoration.underline),
+                trimMode: TrimMode.line,
+                trimLines: 4,
+                delimiter: '  ***',
+                delimiterStyle: textStyle.copyWith(color: Colors.black),
+                style: textStyle.copyWith(color: Colors.orange),
+                trimCollapsedText: 'expand',
+                trimExpandedText: 'compress',
+                moreStyle: textStyle.copyWith(color: Colors.red),
+                lessStyle: textStyle.copyWith(color: Colors.blue),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
