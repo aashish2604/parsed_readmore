@@ -48,7 +48,22 @@ class _ParsedReadMoreDemoState extends State<ParsedReadMoreDemo> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                "Default",
+                "Without using package",
+                style: labelTextStyle,
+              ),
+              const SizedBox(
+                height: 10,
+              ),
+              const Text(inputData),
+              const Padding(
+                padding: EdgeInsets.all(8.0),
+                child: Divider(
+                  thickness: 3,
+                ),
+              ),
+
+              Text(
+                "Using package with default values",
                 style: labelTextStyle,
               ),
               const SizedBox(
@@ -65,7 +80,7 @@ class _ParsedReadMoreDemoState extends State<ParsedReadMoreDemo> {
                 ),
               ),
               Text(
-                'Custom',
+                'Using package with custom values',
                 style: labelTextStyle,
               ),
               const SizedBox(
