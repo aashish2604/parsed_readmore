@@ -14,7 +14,7 @@ and the Flutter guide for
 
 A package which allows to enter text which can be collapsed and expanded. Moreover, it will automatically parse the urls present in the text into hyperlinks.
 
-![Demo Gif](https://github.com/aashish2604/parsed_readmore/blob/main/assets/resized_parsed_readmore_final.gif)
+![Demo Gif](https://s3.gifyu.com/images/parsed_readmore.gif)
 
 # Features
 
@@ -82,5 +82,5 @@ ParsedReadMore(
 
 # Issues
 
-Please file any issues, bugs or feature request as an issue on the GitHub page. If you have some idea for feature upgrade, feel free to contact me through email [aashish.260401@gmail.com](aashish.260401@gmail.com).
+Please file any issues, bugs or feature request as an issue on the GitHub page. If you have some idea for feature upgrade, feel free to contact me through email [aashish.260401@gmail.com](mailto:aashish.260401@gmail.com).
 
