@@ -9,3 +9,7 @@
 ## 0.0.3
 
 * Changed the gif for better illustration
+
+## 0.0.4
+
+* Updated for latest version
