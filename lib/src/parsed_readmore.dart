@@ -54,6 +54,9 @@ class ParsedReadMore extends StatefulWidget {
   ///Called when state change between expanded/compress
   final void Function(bool val)? callback;
 
+  /// A function called when a link is clicked. The url will already contain https://
+  /// if the link on the text didn't have it yet. If this is null the link will open
+  /// on the external browser.
   final void Function(String url)? onTapLink;
 
   final String delimiter;
