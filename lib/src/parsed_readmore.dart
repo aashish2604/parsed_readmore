@@ -31,6 +31,7 @@ class ParsedReadMore extends StatefulWidget {
     this.delimiter = ' $_kEllipsis',
     this.delimiterStyle,
     this.callback,
+    this.onTapLink,
   }) : super(key: key);
 
   /// Used on TrimMode.Length
@@ -51,7 +52,9 @@ class ParsedReadMore extends StatefulWidget {
   final TextStyle? lessStyle;
 
   ///Called when state change between expanded/compress
-  final Function(bool val)? callback;
+  final void Function(bool val)? callback;
+
+  final void Function(String url)? onTapLink;
 
   final String delimiter;
   final TextStyle? urlTextStyle;
@@ -86,26 +89,20 @@ class ParsedReadMoreState extends State<ParsedReadMore> {
   @override
   Widget build(BuildContext context) {
     final DefaultTextStyle defaultTextStyle = DefaultTextStyle.of(context);
-    TextStyle? effectiveTextStyle =
-        widget.style ?? const TextStyle(color: Colors.black);
+    TextStyle? effectiveTextStyle = widget.style ?? const TextStyle(color: Colors.black);
     if (widget.style?.inherit ?? false) {
       effectiveTextStyle = defaultTextStyle.style.merge(widget.style);
     }
 
-    final textAlign =
-        widget.textAlign ?? defaultTextStyle.textAlign ?? TextAlign.start;
+    final textAlign = widget.textAlign ?? defaultTextStyle.textAlign ?? TextAlign.start;
     final textDirection = widget.textDirection ?? Directionality.of(context);
-    final textScaleFactor =
-        widget.textScaleFactor ?? MediaQuery.textScaleFactorOf(context);
+    final textScaleFactor = widget.textScaleFactor ?? MediaQuery.textScaleFactorOf(context);
     final overflow = defaultTextStyle.overflow;
     final locale = widget.locale ?? Localizations.maybeLocaleOf(context);
 
-    final colorClickableText =
-        widget.colorClickableText ?? Theme.of(context).colorScheme.secondary;
-    final defaultLessStyle = widget.lessStyle ??
-        effectiveTextStyle.copyWith(color: colorClickableText);
-    final defaultMoreStyle = widget.moreStyle ??
-        effectiveTextStyle.copyWith(color: colorClickableText);
+    final colorClickableText = widget.colorClickableText ?? Theme.of(context).colorScheme.secondary;
+    final defaultLessStyle = widget.lessStyle ?? effectiveTextStyle.copyWith(color: colorClickableText);
+    final defaultMoreStyle = widget.moreStyle ?? effectiveTextStyle.copyWith(color: colorClickableText);
     final defaultDelimiterStyle = widget.delimiterStyle ?? defaultMoreStyle;
 
     final TextSpan link = TextSpan(
@@ -127,8 +124,7 @@ class ParsedReadMoreState extends State<ParsedReadMore> {
     );
 
     ///Function to get the list of substrings on the basis of them being a link or not
-    List<TextSpan> getSentenceList(String s,
-        [int? limit, bool condition = false]) {
+    List<TextSpan> getSentenceList(String s, [int? limit, bool condition = false]) {
       // int lengthSum = 0;
       final RegExp exp = RegExp(kUrlRegEx);
       final Iterable<RegExpMatch> matches = exp.allMatches(s);
@@ -180,25 +176,20 @@ class ParsedReadMoreState extends State<ParsedReadMore> {
             listOfTextSpans.add(TextSpan(
                 text: url,
                 style: widget.urlTextStyle ??
-                    effectiveTextStyle!.copyWith(
-                        color: kAzureRadianceColor,
-                        decoration: TextDecoration.underline),
+                    effectiveTextStyle!.copyWith(color: kAzureRadianceColor, decoration: TextDecoration.underline),
                 recognizer: TapGestureRecognizer()
                   ..onTap = () {
-                    if (url.length < 8) {
-                      url = 'https://$url';
+                    if (!url.startsWith('http://') && !url.startsWith('https://')) url = 'https://$url';
+
+                    if (widget.onTapLink != null) {
+                      widget.onTapLink!.call(url);
                     } else {
-                      if (url.substring(0, 8) != 'https://' &&
-                          url.substring(0, 7) != 'http://') {
-                        url = 'https://$url';
+                      try {
+                        Uri launchUri = Uri.parse(url);
+                        launchUrl(launchUri, mode: LaunchMode.externalApplication);
+                      } on Exception catch (e) {
+                        throw Exception(e);
                       }
-                    }
-                    try {
-                      Uri launchUri = Uri.parse(url);
-                      launchUrl(launchUri,
-                          mode: LaunchMode.externalApplication);
-                    } on Exception catch (e) {
-                      throw Exception(e);
                     }
                   }));
           } else {
@@ -254,9 +245,7 @@ class ParsedReadMoreState extends State<ParsedReadMore> {
         if (linkSize.width < maxWidth) {
           final readMoreSize = linkSize.width + delimiterSize.width;
           final pos = textPainter.getPositionForOffset(Offset(
-            textDirection == TextDirection.rtl
-                ? readMoreSize
-                : textSize.width - readMoreSize,
+            textDirection == TextDirection.rtl ? readMoreSize : textSize.width - readMoreSize,
             textSize.height,
           ));
           endIndex = textPainter.getOffsetBefore(pos.offset) ?? 0;
@@ -277,8 +266,7 @@ class ParsedReadMoreState extends State<ParsedReadMore> {
               final bool con = widget.trimLength < widget.data.length;
 
               ///Variable created to access the list of the textSpans
-              final List<TextSpan> textSpanList =
-                  getSentenceList(widget.data, widget.trimLength, con);
+              final List<TextSpan> textSpanList = getSentenceList(widget.data, widget.trimLength, con);
               textSpanList.addAll(<TextSpan>[delimiter, link]);
               textSpan = TextSpan(children: textSpanList);
             } else {
@@ -293,8 +281,7 @@ class ParsedReadMoreState extends State<ParsedReadMore> {
             ///Condition which determines whether the given text should be trimmed or not
             if (textPainter.didExceedMaxLines) {
               ///Variable created to access the list of the textSpans
-              final List<TextSpan> textSpanList = getSentenceList(
-                  widget.data, endIndex, textPainter.didExceedMaxLines);
+              final List<TextSpan> textSpanList = getSentenceList(widget.data, endIndex, textPainter.didExceedMaxLines);
               textSpanList.addAll(<TextSpan>[delimiter, link]);
               textSpan = TextSpan(children: textSpanList);
             } else {
@@ -304,8 +291,7 @@ class ParsedReadMoreState extends State<ParsedReadMore> {
             }
             break;
           default:
-            throw Exception(
-                'TrimMode type: ${widget.trimMode} is not supported');
+            throw Exception('TrimMode type: ${widget.trimMode} is not supported');
         }
 
         return RichText(
