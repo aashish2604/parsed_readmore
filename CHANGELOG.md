@@ -13,3 +13,7 @@
 ## 0.0.4
 
 * Updated for latest version
+
+## 0.0.5
+
+* Added option to change the default action on link clicked
