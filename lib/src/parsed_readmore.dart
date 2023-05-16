@@ -160,49 +160,55 @@ class ParsedReadMoreState extends State<ParsedReadMore> {
       for (int i = 0; i < textSpans.length; i++) {
         TextSpan span = textSpans[i];
         String? text = span.text;
-        String? substr = text?.substring(0, 3);
-        List<int> firstInd = <int>[];
 
         if (text != null && widget.highlightText != null) {
           print(widget.highlightText);
-          if (substr != '|~|' &&
-              text.contains(widget.highlightText!.targetText)) {
-            firstInd =
-                findWordOccurrences(text, widget.highlightText!.targetText);
-            print(firstInd);
-            if (firstInd[0] > 0) {
-              alteredTextSpans.insert(
-                  k,
-                  TextSpan(
-                      text: text.substring(0, firstInd[0]),
-                      style: effectiveTextStyle));
-            } else {
-              k--;
-            }
-            for (int j = 0; j < firstInd.length; j++) {
-              k++;
-              int s = widget.highlightText!.targetText.length;
-              alteredTextSpans.insert(
-                  k,
-                  TextSpan(
-                      text: text.substring(firstInd[j], firstInd[j] + s),
-                      style: widget.highlightText!.style));
-              k++;
-              if (j == firstInd.length - 1) {
+          if (text.length >= 3) {
+            String? substr = text.substring(0, 3);
+            List<int> firstInd = <int>[];
+            if (substr != '|~|' &&
+                text.contains(widget.highlightText!.targetText)) {
+              firstInd =
+                  findWordOccurrences(text, widget.highlightText!.targetText);
+              print(firstInd);
+              if (firstInd[0] > 0) {
                 alteredTextSpans.insert(
                     k,
                     TextSpan(
-                        text: text.substring(firstInd[j] + s),
+                        text: text.substring(0, firstInd[0]),
                         style: effectiveTextStyle));
               } else {
+                k--;
+              }
+              for (int j = 0; j < firstInd.length; j++) {
+                k++;
+                int s = widget.highlightText!.targetText.length;
                 alteredTextSpans.insert(
                     k,
                     TextSpan(
-                        text: text.substring(firstInd[j] + s, firstInd[j + 1]),
-                        style: effectiveTextStyle));
+                        text: text.substring(firstInd[j], firstInd[j] + s),
+                        style: widget.highlightText!.style));
+                k++;
+                if (j == firstInd.length - 1) {
+                  alteredTextSpans.insert(
+                      k,
+                      TextSpan(
+                          text: text.substring(firstInd[j] + s),
+                          style: effectiveTextStyle));
+                } else {
+                  alteredTextSpans.insert(
+                      k,
+                      TextSpan(
+                          text:
+                              text.substring(firstInd[j] + s, firstInd[j + 1]),
+                          style: effectiveTextStyle));
+                }
               }
+              k++;
+            } else {
+              alteredTextSpans.insert(k, textSpans[i]);
+              k++;
             }
-            k++;
           } else {
             alteredTextSpans.insert(k, textSpans[i]);
             k++;
