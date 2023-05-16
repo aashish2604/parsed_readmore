@@ -34,7 +34,7 @@ class _ParsedReadMoreDemoState extends State<ParsedReadMoreDemo> {
   final TextStyle labelTextStyle = const TextStyle(
       fontSize: 24, color: Colors.grey, fontWeight: FontWeight.bold);
   static const String inputData =
-      "We know that https://google.com is a very useful website. (rti..notNow should not be parsed) But Instagram.com is more fun to use. We should not forget the contribution of wikipedia.com played in the growth of web. If you like this package do consider liking it so that it could be useful to more developers like you. Thank you for your time";
+      "When using custom values we have specified 'the' to be our target text for highlighting  with purple italic font.\n We know that the website https://google.com is a very useful website. (rti..notNow should not be parsed) But Instagram.com is more fun to use. We should not forget the contribution of wikipedia.com played in the growth of web. If you like this package do consider liking it so that it could be useful to more developers like you. Thank you for your time";
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -95,6 +95,11 @@ class _ParsedReadMoreDemoState extends State<ParsedReadMoreDemo> {
                 trimMode: TrimMode.line,
                 trimLines: 4,
                 delimiter: '  ***',
+                onTapLink: (url) {
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      content: Text(
+                          "'$url' is displayed because we have used custom onTap function for hyperlinks")));
+                },
                 highlightText: TargetTextHighlight(
                     targetText: 'the',
                     style: const TextStyle(
