@@ -34,7 +34,7 @@ class _ParsedReadMoreDemoState extends State<ParsedReadMoreDemo> {
   final TextStyle labelTextStyle = const TextStyle(
       fontSize: 24, color: Colors.grey, fontWeight: FontWeight.bold);
   static const String inputData =
-      "We know that https://google.com is a very useful website. (rti..notNow should not be parsed) But Instagram.com is more fun to use. Nevertheless we should not forget the contribution of wikipedia.com played in the growth of web. If you like this package do consider liking it so that it could be useful to more developers like you. Thank you for your time";
+      "We know that https://google.com is a very useful website. (rti..notNow should not be parsed) But Instagram.com is more fun to use. We should not forget the contribution of wikipedia.com played in the growth of web. If you like this package do consider liking it so that it could be useful to more developers like you. Thank you for your time";
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -95,6 +95,12 @@ class _ParsedReadMoreDemoState extends State<ParsedReadMoreDemo> {
                 trimMode: TrimMode.line,
                 trimLines: 4,
                 delimiter: '  ***',
+                highlightText: TargetTextHighlight(
+                    targetText: 'the',
+                    style: const TextStyle(
+                        fontSize: 20.0,
+                        fontStyle: FontStyle.italic,
+                        color: Colors.purple)),
                 delimiterStyle: textStyle.copyWith(color: Colors.black),
                 style: textStyle.copyWith(color: Colors.orange),
                 trimCollapsedText: 'expand',
