@@ -162,7 +162,6 @@ class ParsedReadMoreState extends State<ParsedReadMore> {
         String? text = span.text;
 
         if (text != null && widget.highlightText != null) {
-          print(widget.highlightText);
           if (text.length >= 3) {
             String? substr = text.substring(0, 3);
             List<int> firstInd = <int>[];
@@ -170,7 +169,6 @@ class ParsedReadMoreState extends State<ParsedReadMore> {
                 text.contains(widget.highlightText!.targetText)) {
               firstInd =
                   findWordOccurrences(text, widget.highlightText!.targetText);
-              print(firstInd);
               if (firstInd[0] > 0) {
                 alteredTextSpans.insert(
                     k,

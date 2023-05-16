@@ -14,7 +14,7 @@ and the Flutter guide for
 
 A package which allows to enter text which can be collapsed and expanded. Moreover, it will automatically parse the urls present in the text into hyperlinks.
 
-![Demo Gif](https://s3.gifyu.com/images/parsed_readmore.gif)
+![Demo Gif](https://s11.gifyu.com/images/download-1dae013859a418b16.gif)
 
 # Features
 
@@ -23,6 +23,8 @@ A package which allows to enter text which can be collapsed and expanded. Moreov
 * Option to include a customised delimiter.
 * Automatically parses the urls present in the text into hyperlinks which launches the browser on click event.
 * All the text components including the parsed urls, delimiter, clickable texts, etc can be given seperate custom styles.
+* Addition of user defined action on clicking the hyperlinks **(latest addition)**.
+* Option to add custom text styles for target text **(latest addition)**.
 
 # Installation
 
@@ -73,6 +75,17 @@ ParsedReadMore(
     delimiter: '  ***',
     delimiterStyle: TextStyle(color: Colors.black, fontSize: 20),
     style: TextStyle(color: Colors.orange, fontSize: 20),
+    onTapLink: (url) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text(
+              '$url is displayed because we have used custom onTap function for hyperlinks')));
+    },
+    highlightText: TargetTextHighlight(
+        targetText: 'the',
+        style: const TextStyle(
+            fontSize: 20.0,
+            fontStyle: FontStyle.italic,
+            color: Colors.purple)),
     trimCollapsedText: 'expand',
     trimExpandedText: 'compress',
     moreStyle: TextStyle(color: Colors.red, fontSize: 20),

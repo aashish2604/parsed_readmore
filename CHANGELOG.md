@@ -17,3 +17,7 @@
 ## 0.0.5
 
 * Added option to change the default action on link clicked
+
+## 0.0.6
+
+* Added detection and highlighting of user specified target text
