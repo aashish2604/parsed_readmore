@@ -21,3 +21,8 @@
 ## 0.0.6
 
 * Added detection and highlighting of user specified target text
+
+## 0.0.7
+
+* Updated dependencies and documentation
+* Made the project contributor friendly
