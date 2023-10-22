@@ -50,7 +50,7 @@ import 'package:parsed_readmore/parsed_readmore.dart';
  ```
 
 ### Without using package (Plain Text)
-https://github.com/aashish2604/parsed_readmore/assets/79049365/f3388857-f02d-4cb6-af94-72be64cbd40d
+[Plain Text](https://github.com/aashish2604/parsed_readmore/assets/79049365/f3388857-f02d-4cb6-af94-72be64cbd40d)
 
 Here we are using the simple Text() widget available in Flutter by default.
 ```dart
@@ -61,7 +61,7 @@ We can clearly see that no url is parsed here into clickable texts and there is 
 ### Using package with default values
 
 
-https://github.com/aashish2604/parsed_readmore/assets/79049365/0e3f1b75-9091-410a-bf75-5a0d93915e4e
+[Default Package](https://github.com/aashish2604/parsed_readmore/assets/79049365/0e3f1b75-9091-410a-bf75-5a0d93915e4e)
 
 
 ```dart
@@ -81,7 +81,7 @@ Here the urls are parsed into clickable links which open external browser on tap
 ### Using package with custom values
 
 
-https://github.com/aashish2604/parsed_readmore/assets/79049365/f6c1f846-c73e-491f-8172-1be67212c723
+[Custom Package](https://github.com/aashish2604/parsed_readmore/assets/79049365/f6c1f846-c73e-491f-8172-1be67212c723)
 
 
 ```dart
