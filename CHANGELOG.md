@@ -26,3 +26,7 @@
 
 * Updated dependencies and documentation
 * Made the project contributor friendly
+
+## 0.0.8
+
+* added more gifs in doc
