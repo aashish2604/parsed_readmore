@@ -50,7 +50,8 @@ import 'package:parsed_readmore/parsed_readmore.dart';
  ```
 
 ### Without using package (Plain Text)
-[Plain Text](https://github.com/aashish2604/parsed_readmore/assets/79049365/f3388857-f02d-4cb6-af94-72be64cbd40d)
+
+<img src="https://firebasestorage.googleapis.com/v0/b/tictactoe-b60c3.appspot.com/o/without.gif?alt=media&token=fa9831a9-c4e4-4e72-9271-cae4e0c24444&_gl=1*1adugm3*_ga*MTI2ODIxNDA3MS4xNjk2MzU4MDY5*_ga_CW55HF8NVT*MTY5Nzk2Nzg3NS4zNC4xLjE2OTc5Njg2NzUuNjAuMC4w" alt="Plain Text" width="350" height="auto">
 
 Here we are using the simple Text() widget available in Flutter by default.
 ```dart
@@ -60,8 +61,7 @@ We can clearly see that no url is parsed here into clickable texts and there is 
 
 ### Using package with default values
 
-
-[Default Package](https://github.com/aashish2604/parsed_readmore/assets/79049365/0e3f1b75-9091-410a-bf75-5a0d93915e4e)
+<img src="https://firebasestorage.googleapis.com/v0/b/tictactoe-b60c3.appspot.com/o/default.gif?alt=media&token=0571009a-b1e0-44ff-b436-8b44c1256eec&_gl=1*pbw5w9*_ga*MTI2ODIxNDA3MS4xNjk2MzU4MDY5*_ga_CW55HF8NVT*MTY5Nzk2Nzg3NS4zNC4xLjE2OTc5Njg2NTIuMjEuMC4w" alt="Default Package" width="350" height="auto">
 
 
 ```dart
@@ -80,8 +80,7 @@ Here the urls are parsed into clickable links which open external browser on tap
 
 ### Using package with custom values
 
-
-[Custom Package](https://github.com/aashish2604/parsed_readmore/assets/79049365/f6c1f846-c73e-491f-8172-1be67212c723)
+<img src="https://firebasestorage.googleapis.com/v0/b/tictactoe-b60c3.appspot.com/o/custom.gif?alt=media&token=e32867c5-596b-4b0a-abf5-4c1c26f49fe9&_gl=1*nc4juk*_ga*MTI2ODIxNDA3MS4xNjk2MzU4MDY5*_ga_CW55HF8NVT*MTY5Nzk2Nzg3NS4zNC4xLjE2OTc5Njg2MTMuNjAuMC4w" alt="Custom Package" width="350" height="auto">
 
 
 ```dart
