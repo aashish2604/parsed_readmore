@@ -30,3 +30,8 @@
 ## 0.0.8
 
 * added more gifs in doc
+
+## 0.0.9
+
+* updated the deprecated parts of code
+* updated the dependencies and documentation
