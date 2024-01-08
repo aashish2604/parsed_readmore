@@ -103,8 +103,10 @@ class ParsedReadMoreState extends State<ParsedReadMore> {
     final textAlign =
         widget.textAlign ?? defaultTextStyle.textAlign ?? TextAlign.start;
     final textDirection = widget.textDirection ?? Directionality.of(context);
-    final textScaleFactor =
-        widget.textScaleFactor ?? MediaQuery.textScaleFactorOf(context);
+    var textScaleFactor = MediaQuery.textScalerOf(context);
+    if (widget.textScaleFactor != null) {
+      textScaleFactor = TextScaler.linear(widget.textScaleFactor!);
+    }
     final overflow = defaultTextStyle.overflow;
     final locale = widget.locale ?? Localizations.maybeLocaleOf(context);
 
@@ -158,7 +160,7 @@ class ParsedReadMoreState extends State<ParsedReadMore> {
           text: link,
           textAlign: textAlign,
           textDirection: textDirection,
-          textScaleFactor: textScaleFactor,
+          textScaler: textScaleFactor,
           maxLines: widget.trimLines,
           ellipsis: overflow == TextOverflow.ellipsis ? widget.delimiter : null,
           locale: locale,
@@ -245,7 +247,7 @@ class ParsedReadMoreState extends State<ParsedReadMore> {
           //softWrap,
           overflow: TextOverflow.clip,
           //overflow,
-          textScaleFactor: textScaleFactor,
+          textScaler: textScaleFactor,
           text: textSpan,
         );
       },
