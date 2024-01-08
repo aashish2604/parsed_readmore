@@ -52,7 +52,7 @@ import 'package:parsed_readmore/parsed_readmore.dart';
  ```
 
 
-## Without using package (Plain Text)
+### Without using package (Plain Text)
 
 Here we are using the simple Text() widget available in Flutter by default.
 ```dart
@@ -63,7 +63,7 @@ Here we are using the simple Text() widget available in Flutter by default.
 We can clearly see that no url is parsed here into clickable texts and there is no option to expand and collapse the texts.
 
 
-## Using package with default values
+### Using package with default values
 
 ```dart
 ParsedReadMore(inputString)
@@ -81,7 +81,7 @@ The code above will implement all features of the widget with the default values
 Here the urls are parsed into clickable links which open external browser on tapping. The text is also collapsable and expandable
 
 
-## Using package with custom values
+### Using package with custom values
 
   
 ```dart
