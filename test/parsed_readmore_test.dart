@@ -12,7 +12,6 @@ void main() {
       urlTextStyle: const TextStyle(),
       effectiveTextStyle: const TextStyle(),
       onTapLink: (url) {},
-      highlightText: null,
     );
     expect(parser, isNotNull);
   });
@@ -24,7 +23,6 @@ void main() {
       urlTextStyle: const TextStyle(),
       effectiveTextStyle: const TextStyle(),
       onTapLink: (url) {},
-      highlightText: null,
     );
 
     const inputText = 'Visit my website at https://example.com';
@@ -41,7 +39,6 @@ void main() {
       urlTextStyle: null,
       effectiveTextStyle: const TextStyle(),
       onTapLink: null,
-      highlightText: null,
     );
 
     const inputText = 'Visit my website at https://example.com';
@@ -61,7 +58,6 @@ void main() {
       urlTextStyle: const TextStyle(fontSize: 16, color: Colors.green),
       effectiveTextStyle: const TextStyle(),
       onTapLink: (url) {},
-      highlightText: null,
     );
 
     const inputText = 'Visit my website at https://example.com';
@@ -79,7 +75,6 @@ void main() {
       urlTextStyle: const TextStyle(),
       effectiveTextStyle: const TextStyle(),
       onTapLink: (url) {},
-      highlightText: null,
     );
 
     const inputText = 'This is a regular text.';
@@ -96,8 +91,8 @@ void main() {
       urlTextStyle: const TextStyle(),
       effectiveTextStyle: const TextStyle(),
       onTapLink: (url) {},
-      highlightText: TargetTextHighlight(
-          targetText: 'example', style: const TextStyle(color: Colors.red)),
+      highlights: [TargetTextHighlight(
+          targetText: 'example', style: const TextStyle(color: Colors.red))],
     );
 
     const inputText = 'Visit my example website at a website.com';

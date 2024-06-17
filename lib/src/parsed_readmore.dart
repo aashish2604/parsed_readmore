@@ -30,7 +30,7 @@ class ParsedReadMore extends StatefulWidget {
       this.delimiterStyle,
       this.callback,
       this.onTapLink,
-      this.highlightText})
+      this.highlights})
       : super(key: key);
 
   /// Used on TrimMode.Length
@@ -59,7 +59,7 @@ class ParsedReadMore extends StatefulWidget {
   final void Function(String url)? onTapLink;
 
   /// Add specified style to target texts in the list
-  final TargetTextHighlight? highlightText;
+  final List<TargetTextHighlight>? highlights;
 
   final String delimiter;
   final TextStyle? urlTextStyle;
@@ -142,7 +142,7 @@ class ParsedReadMoreState extends State<ParsedReadMore> {
         urlTextStyle: widget.urlTextStyle,
         effectiveTextStyle: effectiveTextStyle,
         onTapLink: widget.onTapLink,
-        highlightText: widget.highlightText);
+        highlights: widget.highlights ?? []);
 
     Widget result = LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {

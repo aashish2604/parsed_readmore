@@ -11,91 +11,120 @@ class Parser {
   TextStyle? urlTextStyle;
   TextStyle? effectiveTextStyle;
   void Function(String url)? onTapLink;
-  TargetTextHighlight? highlightText;
+  List<TargetTextHighlight> highlights;
 
-  Parser(
-      {required this.readMore,
-      required this.trimMode,
-      required this.urlTextStyle,
-      required this.effectiveTextStyle,
-      required this.onTapLink,
-      required this.highlightText});
-
-  // Function to get the occurances of string in the spans
-  List<int> findWordOccurrences(String text, String word) {
-    List<int> occurrences = [];
-    int index = 0;
-
-    while (index != -1) {
-      index = text.toLowerCase().indexOf(word.toLowerCase(), index);
-
-      if (index != -1) {
-        occurrences.add(index);
-        index += word.length;
-      }
-    }
-
-    return occurrences;
-  }
+  Parser({
+    required this.readMore,
+    required this.trimMode,
+    required this.urlTextStyle,
+    required this.effectiveTextStyle,
+    required this.onTapLink,
+    this.highlights = const [],
+  });
 
   // Text Span detection and highlighting function
   List<TextSpan> detectHighlightText(List<TextSpan> textSpans) {
     List<TextSpan> alteredTextSpans = <TextSpan>[];
-    int k = 0;
-    for (int i = 0; i < textSpans.length; i++) {
-      TextSpan span = textSpans[i];
+
+    for (TextSpan span in textSpans) {
       String? text = span.text;
 
-      if (text != null && highlightText != null) {
-        if (text.length >= 3) {
-          String? substr = text.substring(0, 3);
-          List<int> firstInd = <int>[];
-          if (substr != '|~|' && text.contains(highlightText!.targetText)) {
-            firstInd = findWordOccurrences(text, highlightText!.targetText);
-            if (firstInd[0] > 0) {
-              alteredTextSpans.insert(
-                  k,
-                  TextSpan(
-                      text: text.substring(0, firstInd[0]),
-                      style: effectiveTextStyle));
-            } else {
-              k--;
-            }
-            for (int j = 0; j < firstInd.length; j++) {
-              k++;
-              int s = highlightText!.targetText.length;
-              alteredTextSpans.insert(
-                  k,
-                  TextSpan(
-                      text: text.substring(firstInd[j], firstInd[j] + s),
-                      style: highlightText!.style));
-              k++;
-              if (j == firstInd.length - 1) {
-                alteredTextSpans.insert(
-                    k,
-                    TextSpan(
-                        text: text.substring(firstInd[j] + s),
-                        style: effectiveTextStyle));
-              } else {
-                alteredTextSpans.insert(
-                    k,
-                    TextSpan(
-                        text: text.substring(firstInd[j] + s, firstInd[j + 1]),
-                        style: effectiveTextStyle));
-              }
-            }
-            k++;
-          } else {
-            alteredTextSpans.insert(k, textSpans[i]);
-            k++;
-          }
-        } else {
-          alteredTextSpans.insert(k, textSpans[i]);
-          k++;
+      if (text != null && highlights.isNotEmpty) {
+        List<TextSpan> tempSpans = [span];
+
+        for (TargetTextHighlight highlight in highlights) {
+          tempSpans = _applyHighlight(tempSpans, highlight);
         }
+
+        alteredTextSpans.addAll(tempSpans);
+      } else {
+        alteredTextSpans.add(span);
       }
     }
+
     return alteredTextSpans;
+  }
+
+  List<TextSpan> _applyHighlight(
+      List<TextSpan> textSpans, TargetTextHighlight highlight) {
+    List<TextSpan> alteredTextSpans = <TextSpan>[];
+    RegExp regex = RegExp(
+      highlight.targetTextHighlightType == TargetTextHighlightType.word
+          ? '\\b${RegExp.escape(highlight.targetText)}\\b'
+          : RegExp.escape(highlight.targetText),
+      caseSensitive: highlight.caseSensitive,
+    );
+
+    for (TextSpan span in textSpans) {
+      String? text = span.text;
+
+      if (text != null && regex.hasMatch(text)) {
+        Iterable<RegExpMatch> matches = regex.allMatches(text);
+        int lastIndex = 0;
+
+        for (RegExpMatch match in matches) {
+          // Check if match is part of a URL
+          if (highlight.targetTextHighlightType ==
+                  TargetTextHighlightType.stringMatch &&
+              _isPartOfUrl(text, match.start, match.end)) {
+            continue;
+          }
+
+          if (match.start > lastIndex) {
+            alteredTextSpans.add(TextSpan(
+              text: text.substring(lastIndex, match.start),
+              style: span.style,
+            ));
+          }
+
+          String matchedText = text.substring(match.start, match.end);
+          final highlightTap = highlight.onTap;
+          if (highlightTap != null) {
+            alteredTextSpans.add(TextSpan(
+              text: matchedText,
+              style: highlight.style,
+              recognizer: TapGestureRecognizer()
+                ..onTap = () {
+                  highlightTap(match.start, match.end, matchedText);
+                },
+            ));
+          } else {
+            alteredTextSpans.add(TextSpan(
+              text: matchedText,
+              style: highlight.style,
+            ));
+          }
+
+          lastIndex = match.end;
+        }
+
+        if (lastIndex < text.length) {
+          alteredTextSpans.add(TextSpan(
+            text: text.substring(lastIndex),
+            style: span.style,
+          ));
+        }
+      } else {
+        alteredTextSpans.add(span);
+      }
+    }
+
+    return alteredTextSpans;
+  }
+
+  bool _isPartOfUrl(String text, int start, int end) {
+    // Comprehensive URL detection regex
+    RegExp urlRegex = RegExp(
+      r'(?:(?:https?|ftp):\/\/|www\.)[^\s/$.?#].[^\s]*',
+      caseSensitive: false,
+    );
+    Iterable<RegExpMatch> urlMatches = urlRegex.allMatches(text);
+    for (RegExpMatch urlMatch in urlMatches) {
+      if (start >= urlMatch.start && end <= urlMatch.end) {
+        return true;
+      }
+    }
+    return false;
   }
 
   // Function to get the list of substrings on the basis of them being a link or not
@@ -184,7 +213,7 @@ class Parser {
         break;
       }
     }
-    if (highlightText != null) {
+    if (highlights.isNotEmpty) {
       var finalSpans = detectHighlightText(listOfTextSpans);
       return finalSpans;
     } else {

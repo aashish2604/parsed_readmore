@@ -140,9 +140,7 @@ class CustomValuesPackage extends StatelessWidget {
               'Using package with custom values',
               style: labelTextStyle,
             ),
-            const SizedBox(
-              height: 10,
-            ),
+            const SizedBox(height: 10),
 
             //Package widget using custom values
             ParsedReadMore(
@@ -157,17 +155,34 @@ class CustomValuesPackage extends StatelessWidget {
                     content: Text(
                         "'$url' is displayed because we have used custom onTap function for hyperlinks")));
               },
-              highlightText: TargetTextHighlight(
-                  targetText: 'the',
-                  style: const TextStyle(
+              highlights: [
+                TargetTextHighlight(
+                    targetText: 'We',
+                    style: const TextStyle(
                       fontSize: 20.0,
                       fontStyle: FontStyle.italic,
-                      color: Colors.purple)),
+                      color: Colors.lightBlue,
+                    ),
+                    onTap: (int startIndex, int endIndex, String text) {
+                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                          content: Text(
+                              "$text is between $startIndex and $endIndex")));
+                    }),
+                 TargetTextHighlight(
+                  targetText: 't',
+                  style: const TextStyle(
+                    fontSize: 20.0,
+                    color: Colors.purple,
+                  ),
+                  targetTextHighlightType: TargetTextHighlightType.stringMatch,
+                
+                ),
+              ],
               delimiterStyle: textStyle.copyWith(color: Colors.black),
-              style: textStyle.copyWith(color: Colors.orange),
+              style: textStyle.copyWith(color: Colors.blueGrey),
               trimCollapsedText: 'expand',
               trimExpandedText: 'compress',
-              moreStyle: textStyle.copyWith(color: Colors.red),
+              moreStyle: textStyle.copyWith(color: Colors.amber),
               lessStyle: textStyle.copyWith(color: Colors.blue),
             ),
           ],
