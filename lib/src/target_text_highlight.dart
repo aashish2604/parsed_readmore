@@ -15,8 +15,8 @@ class TargetTextHighlight {
   /// User defined text style for the specific target
   final TextStyle style;
 
-  /// Callback function when user clicks on the highlighted text
-  final void Function(int startIndex, int endIndex, String text)? onTap;
+  /// Callback function to be called when the highlight text is clicked
+  final void Function(TextRange range)? onTap;
 
   /// Highlight type to determine if the highlight is for whole word or string match
   final TargetTextHighlightType targetTextHighlightType;

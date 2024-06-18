@@ -163,19 +163,21 @@ class CustomValuesPackage extends StatelessWidget {
                       fontStyle: FontStyle.italic,
                       color: Colors.lightBlue,
                     ),
-                    onTap: (int startIndex, int endIndex, String text) {
-                      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    onTap: (range) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
                           content: Text(
-                              "$text is between $startIndex and $endIndex")));
+                              "${range.textInside(inputData)} is between ${range.start} and ${range.end}"),
+                        ),
+                      );
                     }),
-                 TargetTextHighlight(
+                const TargetTextHighlight(
                   targetText: 't',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 20.0,
                     color: Colors.purple,
                   ),
                   targetTextHighlightType: TargetTextHighlightType.stringMatch,
-                
                 ),
               ],
               delimiterStyle: textStyle.copyWith(color: Colors.black),

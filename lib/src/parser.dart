@@ -85,7 +85,12 @@ class Parser {
               style: highlight.style,
               recognizer: TapGestureRecognizer()
                 ..onTap = () {
-                  highlightTap(match.start, match.end, matchedText);
+                  highlightTap(
+                    TextRange(
+                      start: match.start,
+                      end: match.end,
+                    ),
+                  );
                 },
             ));
           } else {
