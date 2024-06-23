@@ -1,71 +1,69 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:parsed_readmore/src/parser.dart';
-import 'package:parsed_readmore/src/target_text_highlight.dart';
+import 'package:flutter/scheduler.dart';
+import 'package:parsed_readmore/parsed_readmore.dart';
 
-enum TrimMode {
-  length,
-  line,
-}
+
 
 class ParsedReadMore extends StatefulWidget {
-  const ParsedReadMore(this.data,
-      {Key? key,
-      this.trimExpandedText = 'show less',
-      this.trimCollapsedText = 'read more',
-      this.colorClickableText,
-      this.trimLength = 240,
-      this.trimLines = 2,
-      this.trimMode = TrimMode.length,
-      this.urlTextStyle,
-      this.style,
-      this.textAlign,
-      this.textDirection,
-      this.locale,
-      this.textScaleFactor,
-      this.semanticsLabel,
-      this.moreStyle,
-      this.lessStyle,
-      this.delimiter = ' $_kEllipsis',
-      this.delimiterStyle,
-      this.callback,
-      this.onTapLink,
-      this.highlights})
-      : super(key: key);
+  const ParsedReadMore(
+    this.parser, {
+    Key? key,
+    this.colorClickableText,
+    this.style,
+    this.textAlign,
+    this.textDirection,
+    this.locale,
+    this.textScaleFactor,
+    this.semanticsLabel,
+    this.callback,
+    this.suffixText,
+    this.readLessTextStyle,
+    this.readMoreTextStyle,
+    this.readMoreDelimiterStyle,
+    this.readLessDelimiterStyle,
+    this.suffixTextStyle,
+    this.readLessText = ' show less',
+    this.readMoreText = ' read more',
+    this.readMoreDelimiter = _kEllipsis,
+    this.readLessDelimiter = ' ',
+  }) : super(key: key);
 
-  /// Used on TrimMode.Length
-  final int trimLength;
+  /// Called when state change between [ReadMoreState.expanded] and [ReadMoreState.collapsed]
+  final void Function(ReadMoreState oldState, ReadMoreState newstate)? callback;
 
-  /// Used on TrimMode.Lines
-  final int trimLines;
+  /// Text is displayed when the state is [ReadMoreState.collapsed]
+  final String readMoreText;
 
-  /// Determines the type of trim. TrimMode.Length takes into account
-  /// the number of letters, while TrimMode.Lines takes into account
-  /// the number of lines
-  final TrimMode trimMode;
+  /// Text is displayed when the state is [ReadMoreState.expanded]
+  final String readLessText;
 
-  /// TextStyle for expanded text
-  final TextStyle? moreStyle;
+  /// Text is displayed between the trimmed text and [readMoreTextStyle]
+  final String readMoreDelimiter;
 
-  /// TextStyle for compressed text
-  final TextStyle? lessStyle;
+  /// Text is displayed between the text and [readLessTextStyle]
+  final String readLessDelimiter;
 
-  ///Called when state change between expanded/compress
-  final void Function(bool val)? callback;
+  /// Text is displayed if passed irrespective of state and it is appended at the end
+  /// of the Text widget.
+  final String? suffixText;
 
-  /// A function called when a link is clicked. The url will already contain https://
-  /// if the link on the text didn't have it yet. If this is null the link will open
-  /// on the external browser.
-  final void Function(String url)? onTapLink;
+  /// TextStyle for [readMoreText]
+  final TextStyle? readMoreTextStyle;
 
-  /// Add specified style to target texts in the list
-  final List<TargetTextHighlight>? highlights;
+  /// TextStyle for [readLessText]
+  final TextStyle? readLessTextStyle;
 
-  final String delimiter;
-  final TextStyle? urlTextStyle;
-  final String data;
-  final String trimExpandedText;
-  final String trimCollapsedText;
+  /// TextStyle for [readMoreDelimiter]
+  final TextStyle? readMoreDelimiterStyle;
+
+  /// TextStyle for [readLessDelimiter]
+  final TextStyle? readLessDelimiterStyle;
+
+  /// TextStyle for [suffixText]
+  final TextStyle? suffixTextStyle;
+
+  final TextHighlightParser parser;
   final Color? colorClickableText;
   final TextStyle? style;
   final TextAlign? textAlign;
@@ -73,7 +71,6 @@ class ParsedReadMore extends StatefulWidget {
   final Locale? locale;
   final double? textScaleFactor;
   final String? semanticsLabel;
-  final TextStyle? delimiterStyle;
 
   @override
   ParsedReadMoreState createState() => ParsedReadMoreState();
@@ -82,19 +79,45 @@ class ParsedReadMore extends StatefulWidget {
 const String _kEllipsis = '\u2026';
 
 class ParsedReadMoreState extends State<ParsedReadMore> {
-  bool _readMore = true;
+  late final Iterable<TextRange> _allUrlRanges;
+  late final List<TextHighlight> _allTextHighlights;
+  // Below variables key refers to each character position in the text, which
+  // needs to be highlighted. After `findTextHighlights` is called. Simply put,
+  // below Map is created for faster access, to Priority Target Text Highlights
+  // Style, else we would have needed to loop over all Text Highlights.
+  late final Map<int, TargetTextHighlights> _allIndexTargetTextHighlightsMap;
+  late final List<TapGestureRecognizer> _assignedTapGestureRecognizers;
+  late ReadMoreState _readMoreState;
 
-  void _onTapLink() {
-    setState(() {
-      _readMore = !_readMore;
-      widget.callback?.call(_readMore);
-    });
+  @override
+  void initState() {
+    super.initState();
+    _assignedTapGestureRecognizers = [];
+    _readMoreState = ReadMoreState.collapsed;
+    _allUrlRanges = widget.parser.findUrlRanges();
+    _allTextHighlights = widget.parser.findTextHighlights();
+    _allIndexTargetTextHighlightsMap =
+        TextHighlightParser.createIndexTargetTextHighlightsMap(
+      _allTextHighlights,
+    );
+  }
+
+  @override
+  void dispose() {
+    for (final tap in _assignedTapGestureRecognizers) {
+      tap.dispose();
+    }
+    super.dispose();
+  }
+
+  void _trackActiveTapGesture(TapGestureRecognizer tap) {
+    _assignedTapGestureRecognizers.add(tap);
   }
 
   @override
   Widget build(BuildContext context) {
     final DefaultTextStyle defaultTextStyle = DefaultTextStyle.of(context);
-    TextStyle? effectiveTextStyle =
+    var effectiveTextStyle =
         widget.style ?? const TextStyle(color: Colors.black);
     if (widget.style?.inherit ?? false) {
       effectiveTextStyle = defaultTextStyle.style.merge(widget.style);
@@ -112,143 +135,127 @@ class ParsedReadMoreState extends State<ParsedReadMore> {
 
     final colorClickableText =
         widget.colorClickableText ?? Theme.of(context).colorScheme.secondary;
-    final defaultLessStyle = widget.lessStyle ??
+    final defaultReadLessStyle = widget.readLessTextStyle ??
         effectiveTextStyle.copyWith(color: colorClickableText);
-    final defaultMoreStyle = widget.moreStyle ??
+    final defaultReadMoreStyle = widget.readMoreTextStyle ??
         effectiveTextStyle.copyWith(color: colorClickableText);
-    final defaultDelimiterStyle = widget.delimiterStyle ?? defaultMoreStyle;
+    final defaultReadMoreDelimiterStyle =
+        widget.readMoreDelimiterStyle ?? defaultReadMoreStyle;
+    final defaultReadLessDelimiterStyle =
+        widget.readLessDelimiterStyle ?? defaultReadLessStyle;
+    final suffixStyle = widget.suffixTextStyle ?? effectiveTextStyle;
 
-    final TextSpan link = TextSpan(
-      text: _readMore ? widget.trimCollapsedText : widget.trimExpandedText,
-      style: _readMore ? defaultMoreStyle : defaultLessStyle,
-      recognizer: TapGestureRecognizer()..onTap = _onTapLink,
+    final isCollapsedState = _readMoreState == ReadMoreState.collapsed;
+
+    final expandCollapseTextSpan = TextSpan(
+      text: isCollapsedState ? widget.readMoreText : widget.readLessText,
+      style: isCollapsedState ? defaultReadMoreStyle : defaultReadLessStyle,
+      recognizer: TapGestureRecognizer()..onTap = _onTapExpandCollapseText,
     );
 
-    final TextSpan delimiter = TextSpan(
-      text: _readMore
-          ? widget.trimCollapsedText.isNotEmpty
-              ? widget.delimiter
-              : ''
-          : widget.trimExpandedText.isNotEmpty
-              ? widget.delimiter
-              : '',
-      style: defaultDelimiterStyle,
-      recognizer: TapGestureRecognizer()..onTap = _onTapLink,
+    final readMoreDelimiterTextSpan = TextSpan(
+      text: isCollapsedState ? widget.readMoreDelimiter : null,
+      style: defaultReadMoreDelimiterStyle,
+      recognizer: TapGestureRecognizer()..onTap = _onTapExpandCollapseText,
     );
 
-    Parser parser = Parser(
-        readMore: _readMore,
-        trimMode: widget.trimMode,
-        urlTextStyle: widget.urlTextStyle,
-        effectiveTextStyle: effectiveTextStyle,
-        onTapLink: widget.onTapLink,
-        highlights: widget.highlights ?? []);
+    final readLessDelimiterTextSpan = TextSpan(
+      text: isCollapsedState ? null : widget.readLessDelimiter,
+      style: defaultReadLessDelimiterStyle,
+      recognizer: TapGestureRecognizer()..onTap = _onTapExpandCollapseText,
+    );
+
+    final suffixTextSpan = TextSpan(
+      text: widget.suffixText,
+      style: suffixStyle,
+    );
+
+    // Create a TextSpan with data
+    final dataTextSpan = TextSpan(
+      style: effectiveTextStyle,
+      text: widget.parser.data,
+    );
 
     Widget result = LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
         assert(constraints.hasBoundedWidth);
-        final double maxWidth = constraints.maxWidth;
-
-        // Create a TextSpan with data
-        final text = TextSpan(
-          style: effectiveTextStyle,
-          text: widget.data,
-        );
 
         // Layout and measure link
-        TextPainter textPainter = TextPainter(
-          text: link,
+        final textPainter = TextPainter(
           textAlign: textAlign,
           textDirection: textDirection,
           textScaler: textScaleFactor,
-          maxLines: widget.trimLines,
-          ellipsis: overflow == TextOverflow.ellipsis ? widget.delimiter : null,
+          maxLines: widget.parser.trimMode == TrimMode.line && isCollapsedState
+              ? widget.parser.maxLines
+              : null,
+          ellipsis: overflow == TextOverflow.ellipsis
+              ? widget.readMoreDelimiter
+              : null,
           locale: locale,
         );
-        textPainter.layout(minWidth: 0, maxWidth: maxWidth);
-        final linkSize = textPainter.size;
 
-        // Layout and measure delimiter
-        textPainter.text = delimiter;
-        textPainter.layout(minWidth: 0, maxWidth: maxWidth);
-        final delimiterSize = textPainter.size;
+        final maxShowCharactersLength = widget.parser.maxCharactersToShow(
+          dataTextSpan: dataTextSpan,
+          constraints: constraints,
+          textPainter: textPainter,
+          suffixTextSpan: suffixTextSpan,
+          expandCollapseTextSpan: expandCollapseTextSpan,
+          readMoreDelimiterTextSpan: readMoreDelimiterTextSpan,
+          readLessDelimiterTextSpan: readLessDelimiterTextSpan,
+          readMoreState: _readMoreState,
+        );
 
-        // Layout and measure text
-        textPainter.text = text;
-        textPainter.layout(minWidth: constraints.minWidth, maxWidth: maxWidth);
-        final textSize = textPainter.size;
+        final textSpanList = <TextSpan>[
+          ...widget.parser.getSentenceList(
+            maxShowCharactersLength: maxShowCharactersLength,
+            effectiveTextStyle: effectiveTextStyle,
+            allTextHighlights: _allTextHighlights,
+            allUrlRanges: _allUrlRanges,
+            allIndexTargetTextHighlightsMap: _allIndexTargetTextHighlightsMap,
+            trackActiveTapGesture: _trackActiveTapGesture,
+          ),
+        ];
 
-        // Get the endIndex of data
-        int endIndex;
-
-        if (linkSize.width < maxWidth) {
-          final readMoreSize = linkSize.width + delimiterSize.width;
-          final pos = textPainter.getPositionForOffset(Offset(
-            textDirection == TextDirection.rtl
-                ? readMoreSize
-                : textSize.width - readMoreSize,
-            textSize.height,
-          ));
-          endIndex = textPainter.getOffsetBefore(pos.offset) ?? 0;
-        } else {
-          final pos = textPainter.getPositionForOffset(
-            textSize.bottomLeft(Offset.zero),
-          );
-          endIndex = pos.offset;
+        if (widget.parser.shouldEnableExpandCollapse) {
+          final isShowingAll =
+              maxShowCharactersLength >= widget.parser.data.length;
+          // Below we have to do that because the initial value of
+          // _readMoreState is set to [ReadMoreState.collapsed] during the
+          // init method call. And we can't seems to find a way to get set
+          // the value of _readMoreState before first frame build. As to compute
+          // [_readMoreState] it need available layout and measure result.
+          if (widget.parser.trimMode == TrimMode.none &&
+              isCollapsedState &&
+              isShowingAll) {
+            SchedulerBinding.instance.addPostFrameCallback(
+              (_) => _onTapExpandCollapseText(),
+            );
+          } else if (isCollapsedState) {
+            textSpanList.addAll(
+              [
+                readMoreDelimiterTextSpan,
+                expandCollapseTextSpan,
+              ],
+            );
+          } else {
+            textSpanList.addAll(
+              [
+                readLessDelimiterTextSpan,
+                expandCollapseTextSpan,
+              ],
+            );
+          }
         }
 
-        // The code below are the ones which are responsible for the ui of this widget
-        InlineSpan textSpan;
-        switch (widget.trimMode) {
-          case TrimMode.length:
-
-            ///Condition which determines whether the given text should be trimmed
-            if (widget.trimLength < widget.data.length) {
-              final bool con = widget.trimLength < widget.data.length;
-
-              ///Variable created to access the list of the textSpans
-              final List<TextSpan> textSpanList =
-                  parser.getSentenceList(widget.data, widget.trimLength, con);
-              textSpanList.addAll(<TextSpan>[delimiter, link]);
-              textSpan = TextSpan(children: textSpanList);
-            } else {
-              ///Variable created to access the list of the textSpans
-              final List<TextSpan> textSpanList =
-                  parser.getSentenceList(widget.data);
-              textSpan = TextSpan(children: textSpanList);
-            }
-            break;
-
-          case TrimMode.line:
-
-            ///Condition which determines whether the given text should be trimmed or not
-            if (textPainter.didExceedMaxLines) {
-              ///Variable created to access the list of the textSpans
-              final List<TextSpan> textSpanList = parser.getSentenceList(
-                  widget.data, endIndex, textPainter.didExceedMaxLines);
-              textSpanList.addAll(<TextSpan>[delimiter, link]);
-              textSpan = TextSpan(children: textSpanList);
-            } else {
-              ///Variable created to access the list of the textSpans
-              final List<TextSpan> textSpanList =
-                  parser.getSentenceList(widget.data);
-              textSpan = TextSpan(children: textSpanList);
-            }
-            break;
-          default:
-            throw Exception(
-                'TrimMode type: ${widget.trimMode} is not supported');
-        }
+        textSpanList.add(suffixTextSpan);
 
         return RichText(
           textAlign: textAlign,
           textDirection: textDirection,
           softWrap: true,
-          //softWrap,
           overflow: TextOverflow.clip,
-          //overflow,
           textScaler: textScaleFactor,
-          text: textSpan,
+          text: TextSpan(children: textSpanList),
         );
       },
     );
@@ -256,12 +263,32 @@ class ParsedReadMoreState extends State<ParsedReadMore> {
       result = Semantics(
         textDirection: widget.textDirection,
         label: widget.semanticsLabel,
-        child: ExcludeSemantics(
-          child: result,
-        ),
+        child: ExcludeSemantics(child: result),
       );
     }
 
     return result;
+  }
+
+  void _onTapExpandCollapseText() {
+    if (!widget.parser.shouldEnableExpandCollapse) {
+      return;
+    }
+
+    final currentState = _readMoreState;
+    final isExpanded = currentState == ReadMoreState.expanded;
+    final isCollapsed = currentState == ReadMoreState.collapsed;
+
+    if (isExpanded) {
+      _readMoreState = ReadMoreState.collapsed;
+    }
+
+    if (isCollapsed) {
+      _readMoreState = ReadMoreState.expanded;
+    }
+
+    setState(() {
+      widget.callback?.call(currentState, _readMoreState);
+    });
   }
 }
