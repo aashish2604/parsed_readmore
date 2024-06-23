@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:parsed_readmore/parsed_readmore.dart';
 
+const String inputData =
+    "When using custom values we have specified 'the' to https://google.com is a very useful website. (rti..notNow should not be parsed) But Instagram.com is more fun to use. We should not forget the contribution of wikipedia.com played in the growth of web. If you like this package do consider liking it so that it could be useful to more developers like you. Thank you for your time";
+
 void main() {
   runApp(const MyApp());
 }
@@ -65,21 +68,15 @@ class WithoutPackage extends StatelessWidget {
   Widget build(BuildContext context) {
     const TextStyle labelTextStyle = TextStyle(
         fontSize: 24, color: Colors.grey, fontWeight: FontWeight.bold);
-    const String inputData =
-        "When using custom values we have specified 'the' to be our target text for highlighting  with purple italic font.\n We know that the website https://google.com is a very useful website. (rti..notNow should not be parsed) But Instagram.com is more fun to use. We should not forget the contribution of wikipedia.com played in the growth of web. If you like this package do consider liking it so that it could be useful to more developers like you. Thank you for your time";
+
     return const Padding(
       padding: EdgeInsets.all(8.0),
       child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              "Without using package",
-              style: labelTextStyle,
-            ),
-            SizedBox(
-              height: 10,
-            ),
+            Text("Without using the package", style: labelTextStyle),
+            SizedBox(height: 12),
             Text(inputData),
           ],
         ),
@@ -95,24 +92,18 @@ class DefaultValuesPackage extends StatelessWidget {
   Widget build(BuildContext context) {
     const TextStyle labelTextStyle = TextStyle(
         fontSize: 24, color: Colors.grey, fontWeight: FontWeight.bold);
-    const String inputData =
-        "When using custom values we have specified 'the' to be our target text for highlighting  with purple italic font.\n We know that the website https://google.com is a very useful website. (rti..notNow should not be parsed) But Instagram.com is more fun to use. We should not forget the contribution of wikipedia.com played in the growth of web. If you like this package do consider liking it so that it could be useful to more developers like you. Thank you for your time";
+
     return const Padding(
       padding: EdgeInsets.all(8.0),
       child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              "Using package with default values",
-              style: labelTextStyle,
-            ),
-            SizedBox(
-              height: 10,
-            ),
+            Text("Using package with default values", style: labelTextStyle),
+            SizedBox(height: 12),
 
             //Package widget using only default values.
-            ParsedReadMore(inputData),
+            ParsedReadMore(TextHighlightParser(data: inputData)),
           ],
         ),
       ),
@@ -128,8 +119,7 @@ class CustomValuesPackage extends StatelessWidget {
     const TextStyle textStyle = TextStyle(fontSize: 20);
     const TextStyle labelTextStyle = TextStyle(
         fontSize: 24, color: Colors.grey, fontWeight: FontWeight.bold);
-    const String inputData =
-        "When using custom values we have specified 'the' to be our target text for highlighting  with purple italic font.\n We know that the website https://google.com is a very useful website. (rti..notNow should not be parsed) But Instagram.com is more fun to use. We should not forget the contribution of wikipedia.com played in the growth of web. If you like this package do consider liking it so that it could be useful to more developers like you. Thank you for your time";
+
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: SingleChildScrollView(
@@ -140,28 +130,77 @@ class CustomValuesPackage extends StatelessWidget {
               'Using package with custom values',
               style: labelTextStyle,
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 12),
+            ParsedReadMore(
+              TextHighlightParser(
+                data: inputData,
+                urlTextStyle: textStyle.copyWith(
+                  color: Colors.green,
+                  decoration: TextDecoration.underline,
+                ),
+                trimMode: TrimMode.line,
+                maxLines: 2,
+                onTapLink: (url) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        """'$url' is displayed because we have used custom onTap function for hyperlinks""",
+                      ),
+                    ),
+                  );
+                },
+              ),
+              readMoreDelimiter: '+++',
+              readLessDelimiter: ' ---',
+              readMoreDelimiterStyle: textStyle.copyWith(color: Colors.black),
+              readLessDelimiterStyle: textStyle.copyWith(color: Colors.black),
+              style: textStyle.copyWith(color: Colors.grey),
+              readMoreText: ' expand',
+              readLessText: ' compress',
+              readMoreTextStyle: textStyle.copyWith(color: Colors.blue),
+              readLessTextStyle: textStyle.copyWith(color: Colors.pink),
+            ),
+            const SizedBox(height: 64),
+
+            const Divider(),
+            const SizedBox(height: 64),
+
+            const Text(
+              'Using package with multiple highlights targets',
+              style: labelTextStyle,
+            ),
+            const SizedBox(height: 12),
 
             //Package widget using custom values
             ParsedReadMore(
-              inputData,
-              urlTextStyle: textStyle.copyWith(
-                  color: Colors.green, decoration: TextDecoration.underline),
-              trimMode: TrimMode.line,
-              trimLines: 4,
-              delimiter: '  ***',
-              onTapLink: (url) {
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    content: Text(
-                        "'$url' is displayed because we have used custom onTap function for hyperlinks")));
-              },
-              highlights: [
-                TargetTextHighlight(
+              TextHighlightParser(
+                data: inputData,
+                targetTextHighlights: TargetTextHighlights([
+                  TargetTextHighlight(
+                    priority: 1,
                     targetText: 'We',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 20.0,
                       fontStyle: FontStyle.italic,
-                      color: Colors.lightBlue,
+                      color: Colors.blue[900],
+                    ),
+                  ),
+                  const TargetTextHighlight(
+                    priority: 2,
+                    targetText: 't',
+                    highlightInUrl: true,
+                    style: TextStyle(
+                      fontSize: 20.0,
+                      color: Colors.purple,
+                    ),
+                  ),
+                  TargetTextHighlight(
+                    priority: 3,
+                    targetText: 'e',
+                    highlightInUrl: true,
+                    style: const TextStyle(
+                      fontSize: 20.0,
+                      color: Colors.orange,
                     ),
                     onTap: (range) {
                       ScaffoldMessenger.of(context).showSnackBar(
@@ -170,23 +209,15 @@ class CustomValuesPackage extends StatelessWidget {
                               "${range.textInside(inputData)} is between ${range.start} and ${range.end}"),
                         ),
                       );
-                    }),
-                const TargetTextHighlight(
-                  targetText: 't',
-                  style: TextStyle(
-                    fontSize: 20.0,
-                    color: Colors.purple,
+                    },
                   ),
-                  targetTextHighlightType: TargetTextHighlightType.stringMatch,
-                ),
-              ],
-              delimiterStyle: textStyle.copyWith(color: Colors.black),
-              style: textStyle.copyWith(color: Colors.blueGrey),
-              trimCollapsedText: 'expand',
-              trimExpandedText: 'compress',
-              moreStyle: textStyle.copyWith(color: Colors.amber),
-              lessStyle: textStyle.copyWith(color: Colors.blue),
+                ]),
+                shouldEnableExpandCollapse: false,
+                trimMode: TrimMode.none,
+              ),
+              style: textStyle.copyWith(color: Colors.grey),
             ),
+            const SizedBox(height: 64),
           ],
         ),
       ),
