@@ -1,9 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:parsed_readmore/parsed_readmore.dart';
-
-
 
 class ParsedReadMore extends StatefulWidget {
   const ParsedReadMore(
@@ -16,21 +13,45 @@ class ParsedReadMore extends StatefulWidget {
     this.locale,
     this.textScaleFactor,
     this.semanticsLabel,
-    this.callback,
+    this.callbackOnStateChange,
     this.suffixText,
     this.readLessTextStyle,
     this.readMoreTextStyle,
     this.readMoreDelimiterStyle,
     this.readLessDelimiterStyle,
     this.suffixTextStyle,
-    this.readLessText = ' show less',
+    this.onTapReadMoreText,
+    this.onTapReadLessText,
+    this.enableStateChange = true,
+    this.shouldShowSuffixText = true,
     this.readMoreText = ' read more',
+    this.readLessText = ' show less',
+    this.shouldShowReadLessText = true,
+    this.shouldShowReadMoreText = true,
     this.readMoreDelimiter = _kEllipsis,
     this.readLessDelimiter = ' ',
   }) : super(key: key);
 
-  /// Called when state change between [ReadMoreState.expanded] and [ReadMoreState.collapsed]
-  final void Function(ReadMoreState oldState, ReadMoreState newstate)? callback;
+  final TextHighlightParser parser;
+
+  /// Called when state change between [ReadMoreState.expanded] and
+  /// [ReadMoreState.collapsed]
+  final void Function(ReadMoreState oldState, ReadMoreState newstate)?
+      callbackOnStateChange;
+
+  ///  If it is null, then fallback to internal [_onTapExpandCollapseText]
+  /// function. Expand and collapse functionality happens because
+  /// [_onTapExpandCollapseText] invokes setState. To disable the functionality
+  /// of [_onTapExpandCollapseText], it can be set to false.
+  final bool enableStateChange;
+
+  /// It is called when tap on [readMoreText], if it is null, then fallback to
+  /// internal [_onTapExpandCollapseText] function.
+  final void Function()? onTapReadMoreText;
+
+  /// It is called when tap on [readLessText], if it is null, then fallback to
+  /// internal [_onTapExpandCollapseText] function.
+  final void Function()? onTapReadLessText;
 
   /// Text is displayed when the state is [ReadMoreState.collapsed]
   final String readMoreText;
@@ -44,15 +65,24 @@ class ParsedReadMore extends StatefulWidget {
   /// Text is displayed between the text and [readLessTextStyle]
   final String readLessDelimiter;
 
-  /// Text is displayed if passed irrespective of state and it is appended at the end
-  /// of the Text widget.
-  final String? suffixText;
-
   /// TextStyle for [readMoreText]
   final TextStyle? readMoreTextStyle;
 
   /// TextStyle for [readLessText]
   final TextStyle? readLessTextStyle;
+
+  /// Text is displayed if passed irrespective of state and it is appended at the end
+  /// of the Text widget.
+  final String? suffixText;
+
+  /// Either [readMoreText] should be displayed.
+  final bool shouldShowReadMoreText;
+
+  /// Either [readLessText] should be displayed.
+  final bool shouldShowReadLessText;
+
+  /// Either [suffixText] should be displayed.
+  final bool shouldShowSuffixText;
 
   /// TextStyle for [readMoreDelimiter]
   final TextStyle? readMoreDelimiterStyle;
@@ -63,9 +93,16 @@ class ParsedReadMore extends StatefulWidget {
   /// TextStyle for [suffixText]
   final TextStyle? suffixTextStyle;
 
-  final TextHighlightParser parser;
-  final Color? colorClickableText;
+  /// TextStyle for text that is not highlighted.
+  /// If not provided, it defaults to [style]. If [style] is provided and
+  /// other styles are not provided, [style] is used as fallback.
   final TextStyle? style;
+
+  /// Color for [readMoreText] and [readLessText]. If specified style is provided
+  /// for [readMoreText] and [readLessText], then that is used else
+  /// this color is used as fallback.
+  final Color? colorClickableText;
+
   final TextAlign? textAlign;
   final TextDirection? textDirection;
   final Locale? locale;
@@ -93,7 +130,7 @@ class ParsedReadMoreState extends State<ParsedReadMore> {
   void initState() {
     super.initState();
     _assignedTapGestureRecognizers = [];
-    _readMoreState = ReadMoreState.collapsed;
+    _readMoreState = widget.parser.initialState;
     _allUrlRanges = widget.parser.findUrlRanges();
     _allTextHighlights = widget.parser.findTextHighlights();
     _allIndexTargetTextHighlightsMap =
@@ -150,19 +187,24 @@ class ParsedReadMoreState extends State<ParsedReadMore> {
     final expandCollapseTextSpan = TextSpan(
       text: isCollapsedState ? widget.readMoreText : widget.readLessText,
       style: isCollapsedState ? defaultReadMoreStyle : defaultReadLessStyle,
-      recognizer: TapGestureRecognizer()..onTap = _onTapExpandCollapseText,
+      recognizer: TapGestureRecognizer()
+        ..onTap = isCollapsedState
+            ? widget.onTapReadMoreText ?? _onTapExpandCollapseText
+            : widget.onTapReadLessText ?? _onTapExpandCollapseText,
     );
 
     final readMoreDelimiterTextSpan = TextSpan(
       text: isCollapsedState ? widget.readMoreDelimiter : null,
       style: defaultReadMoreDelimiterStyle,
-      recognizer: TapGestureRecognizer()..onTap = _onTapExpandCollapseText,
+      recognizer: TapGestureRecognizer()
+        ..onTap = widget.onTapReadMoreText ?? _onTapExpandCollapseText,
     );
 
     final readLessDelimiterTextSpan = TextSpan(
       text: isCollapsedState ? null : widget.readLessDelimiter,
       style: defaultReadLessDelimiterStyle,
-      recognizer: TapGestureRecognizer()..onTap = _onTapExpandCollapseText,
+      recognizer: TapGestureRecognizer()
+        ..onTap = widget.onTapReadLessText ?? _onTapExpandCollapseText,
     );
 
     final suffixTextSpan = TextSpan(
@@ -195,14 +237,17 @@ class ParsedReadMoreState extends State<ParsedReadMore> {
         );
 
         final maxShowCharactersLength = widget.parser.maxCharactersToShow(
-          dataTextSpan: dataTextSpan,
-          constraints: constraints,
           textPainter: textPainter,
+          constraints: constraints,
+          dataTextSpan: dataTextSpan,
+          readMoreState: _readMoreState,
           suffixTextSpan: suffixTextSpan,
+          shouldShowSuffixText: widget.shouldShowSuffixText,
+          shouldShowReadMoreText: widget.shouldShowReadMoreText,
+          shouldShowReadLessText: widget.shouldShowReadLessText,
           expandCollapseTextSpan: expandCollapseTextSpan,
           readMoreDelimiterTextSpan: readMoreDelimiterTextSpan,
           readLessDelimiterTextSpan: readLessDelimiterTextSpan,
-          readMoreState: _readMoreState,
         );
 
         final textSpanList = <TextSpan>[
@@ -216,38 +261,25 @@ class ParsedReadMoreState extends State<ParsedReadMore> {
           ),
         ];
 
-        if (widget.parser.shouldEnableExpandCollapse) {
-          final isShowingAll =
-              maxShowCharactersLength >= widget.parser.data.length;
-          // Below we have to do that because the initial value of
-          // _readMoreState is set to [ReadMoreState.collapsed] during the
-          // init method call. And we can't seems to find a way to get set
-          // the value of _readMoreState before first frame build. As to compute
-          // [_readMoreState] it need available layout and measure result.
-          if (widget.parser.trimMode == TrimMode.none &&
-              isCollapsedState &&
-              isShowingAll) {
-            SchedulerBinding.instance.addPostFrameCallback(
-              (_) => _onTapExpandCollapseText(),
-            );
-          } else if (isCollapsedState) {
-            textSpanList.addAll(
-              [
-                readMoreDelimiterTextSpan,
-                expandCollapseTextSpan,
-              ],
-            );
-          } else {
-            textSpanList.addAll(
-              [
-                readLessDelimiterTextSpan,
-                expandCollapseTextSpan,
-              ],
-            );
-          }
+        if (widget.shouldShowReadMoreText && isCollapsedState) {
+          textSpanList.addAll(
+            [
+              readMoreDelimiterTextSpan,
+              expandCollapseTextSpan,
+            ],
+          );
+        } else if (widget.shouldShowReadLessText && !isCollapsedState) {
+          textSpanList.addAll(
+            [
+              readLessDelimiterTextSpan,
+              expandCollapseTextSpan,
+            ],
+          );
         }
 
-        textSpanList.add(suffixTextSpan);
+        if (widget.shouldShowSuffixText) {
+          textSpanList.add(suffixTextSpan);
+        }
 
         return RichText(
           textAlign: textAlign,
@@ -271,7 +303,7 @@ class ParsedReadMoreState extends State<ParsedReadMore> {
   }
 
   void _onTapExpandCollapseText() {
-    if (!widget.parser.shouldEnableExpandCollapse) {
+    if (!widget.enableStateChange) {
       return;
     }
 
@@ -288,7 +320,7 @@ class ParsedReadMoreState extends State<ParsedReadMore> {
     }
 
     setState(() {
-      widget.callback?.call(currentState, _readMoreState);
+      widget.callbackOnStateChange?.call(currentState, _readMoreState);
     });
   }
 }

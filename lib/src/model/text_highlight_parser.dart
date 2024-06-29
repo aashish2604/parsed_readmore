@@ -13,12 +13,16 @@ class TextHighlightParser {
     this.targetTextHighlights,
     this.onTapLink,
     this.urlTextStyle,
+    this.initialState = ReadMoreState.collapsed,
     this.trimMode = TrimMode.character,
     this.maxCharacters = 240,
     this.maxLines = 2,
-    this.shouldEnableExpandCollapse = true,
   })  : assert(maxLines > 0, 'trimLines must be greater than 0'),
         assert(maxCharacters > 0, 'trimLength must be greater than 0');
+
+  /// Initial state of the widget when it is created.
+  /// [ReadMoreState.collapsed] by default
+  final ReadMoreState initialState;
 
   /// The text to be parsed
   final String data;
@@ -35,20 +39,19 @@ class TextHighlightParser {
   final TextStyle? urlTextStyle;
 
   /// Used when [trimMode] is [TrimMode.characters]
+  /// By default, it is 240
   final int maxCharacters;
 
   /// Used when [trimMode] is [TrimMode.lines]
+  /// By default, it is 2
   final int maxLines;
 
   /// Determines the type of trim. [TrimMode.characters] takes into account
   /// the number of characters, while [TrimMode.lines] takes into account
   /// the number of lines and [TrimMode.none] will show the as many
   /// characters  as possible in the widget layout.
+  /// By default, it is [TrimMode.character]
   final TrimMode trimMode;
-
-  /// Bool representing whether expand and compress text should be enabled.
-  /// If false, [readMoreText] and [readLessText] will not be displayed.
-  final bool shouldEnableExpandCollapse;
 
   Iterable<TextRange> findUrlRanges() sync* {
     final urlRegex = RegExp(kUrlRegEx);
@@ -156,7 +159,12 @@ class TextHighlightParser {
         );
 
         final text = nonHighlightRange.textInside(data);
-        textSpans.add(TextSpan(text: text, style: effectiveTextStyle));
+        textSpans.add(
+          TextSpan(
+            text: text,
+            style: effectiveTextStyle,
+          ),
+        );
 
         i = nonHighlightRange.end;
         continue;
@@ -464,11 +472,14 @@ class TextHighlightParser {
     required TextSpan dataTextSpan,
     required TextSpan suffixTextSpan,
     required TextPainter textPainter,
+    required bool shouldShowSuffixText,
     required BoxConstraints constraints,
+    required ReadMoreState readMoreState,
+    required bool shouldShowReadMoreText,
+    required bool shouldShowReadLessText,
     required TextSpan expandCollapseTextSpan,
     required TextSpan readMoreDelimiterTextSpan,
     required TextSpan readLessDelimiterTextSpan,
-    required ReadMoreState readMoreState,
   }) {
     final isTimeModeLines = trimMode == TrimMode.line;
     final isTimeModeCharacters = trimMode == TrimMode.character;
@@ -507,17 +518,14 @@ class TextHighlightParser {
     textPainter.layout(minWidth: minWidth, maxWidth: maxWidth);
     final dataTextSize = textPainter.size;
 
-    final extraWidth = shouldEnableExpandCollapse
-        ? isCollapsedState
-            ? expandCollapseTextSize.width +
-                readMoreDelimiterSize.width +
-                suffixTextSize.width
-            : isExpandedState
-                ? expandCollapseTextSize.width +
-                    readLessDelimiterSize.width +
-                    suffixTextSize.width
-                : suffixTextSize.width
-        : suffixTextSize.width;
+    var extraWidth = isCollapsedState && shouldShowReadMoreText
+        ? expandCollapseTextSize.width + readMoreDelimiterSize.width
+        : isExpandedState && shouldShowReadMoreText
+            ? expandCollapseTextSize.width + readLessDelimiterSize.width
+            : 0;
+    if (shouldShowSuffixText) {
+      extraWidth += suffixTextSize.width;
+    }
     if (dataTextSize.width > maxWidth) {
       final position = textPainter.getPositionForOffset(
         Offset(maxWidth - extraWidth, dataTextSize.height),
@@ -565,9 +573,6 @@ class TextHighlightParser {
 
       case TrimMode.line:
         return maxCharacterLengthToShow;
-
-      case TrimMode.none:
-        return maxVisibleCharacterLength;
     }
   }
 
