@@ -261,14 +261,21 @@ class ParsedReadMoreState extends State<ParsedReadMore> {
           ),
         ];
 
-        if (widget.shouldShowReadMoreText && isCollapsedState) {
+        final isShowingAll =
+            maxShowCharactersLength >= widget.parser.data.length;
+
+        if (widget.shouldShowReadMoreText &&
+            isCollapsedState &&
+            !isShowingAll) {
           textSpanList.addAll(
             [
               readMoreDelimiterTextSpan,
               expandCollapseTextSpan,
             ],
           );
-        } else if (widget.shouldShowReadLessText && !isCollapsedState) {
+        } else if (widget.shouldShowReadLessText &&
+            isShowingAll &&
+            !isCollapsedState) {
           textSpanList.addAll(
             [
               readLessDelimiterTextSpan,
@@ -282,6 +289,7 @@ class ParsedReadMoreState extends State<ParsedReadMore> {
         }
 
         return RichText(
+          key: widget.key,
           textAlign: textAlign,
           textDirection: textDirection,
           softWrap: true,
@@ -293,6 +301,7 @@ class ParsedReadMoreState extends State<ParsedReadMore> {
     );
     if (widget.semanticsLabel != null) {
       result = Semantics(
+        key: widget.key,
         textDirection: widget.textDirection,
         label: widget.semanticsLabel,
         child: ExcludeSemantics(child: result),

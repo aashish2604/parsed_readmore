@@ -38,17 +38,19 @@ extension TextRangeIterableExtension on Iterable<int> {
 
     return ranges;
   }
-    /// [validateExpectEndIndexValue] function take the end index which this range is expected to
-    /// after locating the range. This function consume that newly located
-    /// end index and return the new end index, by doing some checks if they
-    /// are valid.
-    /// e.g. expectEndIndexValue index is always set to end index + 1
-    /// but if the end index is
+
+  /// [validateExpectEndIndexValue] function take the end index which this range is expected to
+  /// after locating the range. This function consume that newly located
+  /// end index and return the new end index, by doing some checks if they
+  /// are valid.
+  /// e.g. expectEndIndexValue index is always set to end index + 1
+  /// but if the end index is
 
   TextRange firstTextRangeFromStartIndex(
     int startIndex, {
     int? Function(int expectEndIndexValue)? validateExpectEndIndexValue,
-    bool Function(int current, int next)? checkIsRangeValid,
+    bool Function({required int indexValue, required int nextIndexValue})?
+        checkIsRangeValid,
   }) {
     // if start index and contains then throw error
     if (!contains(startIndex)) {
@@ -73,7 +75,10 @@ extension TextRangeIterableExtension on Iterable<int> {
       }
 
       if (checkIsRangeValid != null &&
-          !checkIsRangeValid.call(indexValue, nextIndexValue)) {
+          !checkIsRangeValid.call(
+            indexValue: indexValue,
+            nextIndexValue: nextIndexValue,
+          )) {
         break;
       }
 

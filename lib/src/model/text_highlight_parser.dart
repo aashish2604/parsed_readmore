@@ -103,19 +103,17 @@ class TextHighlightParser {
     final allIndexes = Set<int>.unmodifiable(
       Iterable<int>.generate(maxShowCharactersLength + 1),
     );
-    final textHighlights = allTextHighlights
-        .where((textHighlight) => textHighlight.highlightRanges.any(
-              (range) => allIndexes.containsAll(range.rangeIndexes()),
-            ))
-        .toList();
+    
+    final textHighlightRangesIndexes = allTextHighlights
+        .expand(
+          (textHighlight) => textHighlight.highlightRanges.expand(
+            (range) => range.rangeIndexes().toSet().intersection(allIndexes),
+          ),
+        )
+        .toSet();
 
     final urlRanges =
         allUrlRanges.where((range) => range.start < maxShowCharactersLength);
-
-    final textHighlightRangesIndexes = Set<int>.unmodifiable(
-        textHighlights.expand((textHighlight) => textHighlight.highlightRanges
-            .map((range) => range.rangeIndexes())
-            .expand((i) => i)));
 
     final urlHighlightIndexes = Set<int>.from(urlRanges.expand(
       (range) => range.rangeIndexes(),
@@ -444,18 +442,21 @@ class TextHighlightParser {
     return indexTargetTextHighlightsMap;
   }
 
-  // TextRange for substring text highlight. If the range of
-  // indexes have same target highlight meaning same priority.
+  // TextRange of substring target text highlight. The range is only considered
+  // when the subsequent index values have the same priority.
   TextRange _textRangeForSubStringHighlight({
     required int startIndexValue,
     required Map<int, TargetTextHighlight> indexTargetTextHighlightsMap,
   }) {
     final sortIndexes = indexTargetTextHighlightsMap.keys.toList()..sort();
 
-    return sortIndexes.firstTextRangeFromStartIndex(startIndexValue,
-        checkIsRangeValid: (current, next) {
-      final indexTargetHighlight = indexTargetTextHighlightsMap[current];
-      final nextIndexTargetHighlight = indexTargetTextHighlightsMap[next];
+    bool checkIsRangeValid({
+      required int indexValue,
+      required int nextIndexValue,
+    }) {
+      final indexTargetHighlight = indexTargetTextHighlightsMap[indexValue];
+      final nextIndexTargetHighlight =
+          indexTargetTextHighlightsMap[nextIndexValue];
 
       if (indexTargetHighlight == null || nextIndexTargetHighlight == null) {
         return false;
@@ -465,7 +466,12 @@ class TextHighlightParser {
         return false;
       }
       return true;
-    });
+    }
+
+    return sortIndexes.firstTextRangeFromStartIndex(
+      startIndexValue,
+      checkIsRangeValid: checkIsRangeValid,
+    );
   }
 
   int maxCharactersToShow({
