@@ -134,6 +134,7 @@ class CustomValuesPackage extends StatelessWidget {
             ParsedReadMore(
               TextHighlightParser(
                 data: inputData,
+                initialState: ReadMoreState.expanded,
                 urlTextStyle: textStyle.copyWith(
                   color: Colors.green,
                   decoration: TextDecoration.underline,
@@ -149,32 +150,6 @@ class CustomValuesPackage extends StatelessWidget {
                     ),
                   );
                 },
-              ),
-              readMoreDelimiter: '+++',
-              readLessDelimiter: ' ---',
-              readMoreDelimiterStyle: textStyle.copyWith(color: Colors.black),
-              readLessDelimiterStyle: textStyle.copyWith(color: Colors.black),
-              style: textStyle.copyWith(color: Colors.grey),
-              readMoreText: ' expand',
-              readLessText: ' compress',
-              readMoreTextStyle: textStyle.copyWith(color: Colors.blue),
-              readLessTextStyle: textStyle.copyWith(color: Colors.pink),
-            ),
-            const SizedBox(height: 64),
-
-            const Divider(),
-            const SizedBox(height: 64),
-
-            const Text(
-              'Using package with multiple highlights targets',
-              style: labelTextStyle,
-            ),
-            const SizedBox(height: 12),
-
-            //Package widget using custom values
-            ParsedReadMore(
-              TextHighlightParser(
-                data: inputData,
                 targetTextHighlights: TargetTextHighlights([
                   TargetTextHighlight(
                     priority: 1,
@@ -212,10 +187,16 @@ class CustomValuesPackage extends StatelessWidget {
                     },
                   ),
                 ]),
-                shouldEnableExpandCollapse: false,
-                trimMode: TrimMode.none,
               ),
+              readMoreDelimiter: '+++',
+              readLessDelimiter: ' ---',
+              readMoreDelimiterStyle: textStyle.copyWith(color: Colors.black),
+              readLessDelimiterStyle: textStyle.copyWith(color: Colors.black),
               style: textStyle.copyWith(color: Colors.grey),
+              readMoreText: ' expand',
+              readLessText: ' compress',
+              readMoreTextStyle: textStyle.copyWith(color: Colors.blue),
+              readLessTextStyle: textStyle.copyWith(color: Colors.pink),
             ),
             const SizedBox(height: 64),
           ],
