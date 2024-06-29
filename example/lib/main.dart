@@ -134,7 +134,7 @@ class CustomValuesPackage extends StatelessWidget {
             ParsedReadMore(
               TextHighlightParser(
                 data: inputData,
-                initialState: ReadMoreState.expanded,
+                initialState: ReadMoreState.collapsed,
                 urlTextStyle: textStyle.copyWith(
                   color: Colors.green,
                   decoration: TextDecoration.underline,
