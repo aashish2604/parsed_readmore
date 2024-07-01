@@ -39,7 +39,7 @@ void main() {
           final parser = TextHighlightParser(
             data: inputText,
             targetTextHighlights: TargetTextHighlights(
-              [
+              targetHighlights: [
                 const TargetTextHighlight(
                   targetText: 'Visit',
                   style: TextStyle(
@@ -53,6 +53,9 @@ void main() {
                     color: Colors.blue,
                   ),
                   priority: 2,
+                ),
+                const TargetTextHighlight(
+                  targetText: 'https://example.com',
                 ),
               ],
             ),
@@ -72,7 +75,7 @@ void main() {
             () {
               expect(
                 parser.targetTextHighlights?.targetHighlights,
-                hasLength(2),
+                hasLength(3),
               );
             },
           );
@@ -167,6 +170,7 @@ void main() {
     final result = parser.getSentenceList(
       maxShowCharactersLength: parser.data.length,
       effectiveTextStyle: const TextStyle(),
+      defaultHighlightStyle: null,
       allTextHighlights: parser.findTextHighlights(),
       allUrlRanges: parser.findUrlRanges(),
       allIndexTargetTextHighlightsMap:
@@ -198,6 +202,7 @@ void main() {
     final result = parser.getSentenceList(
       maxShowCharactersLength: parser.data.length,
       effectiveTextStyle: const TextStyle(),
+      defaultHighlightStyle: null,
       allTextHighlights: parser.findTextHighlights(),
       allUrlRanges: parser.findUrlRanges(),
       allIndexTargetTextHighlightsMap:
@@ -226,6 +231,7 @@ void main() {
     final result = parser.getSentenceList(
       maxShowCharactersLength: parser.data.length,
       effectiveTextStyle: const TextStyle(),
+      defaultHighlightStyle: null,
       allTextHighlights: parser.findTextHighlights(),
       allUrlRanges: parser.findUrlRanges(),
       allIndexTargetTextHighlightsMap:
@@ -240,14 +246,13 @@ void main() {
   });
 
   test('Parser detects and highlights custom target text', () {
-    
     const inputText = 'Visit my example website at a website.com';
     final parser = TextHighlightParser(
       data: inputText,
       trimMode: TrimMode.line,
       urlTextStyle: const TextStyle(),
       onTapLink: (url) {},
-      targetTextHighlights: TargetTextHighlights([
+      targetTextHighlights: TargetTextHighlights(targetHighlights: [
         const TargetTextHighlight(
           targetText: 'example',
           priority: 1,
@@ -261,6 +266,7 @@ void main() {
     final result = parser.getSentenceList(
       maxShowCharactersLength: parser.data.length,
       effectiveTextStyle: const TextStyle(),
+      defaultHighlightStyle: null,
       allTextHighlights: parser.findTextHighlights(),
       allUrlRanges: parser.findUrlRanges(),
       allIndexTargetTextHighlightsMap:
