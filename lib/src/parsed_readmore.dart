@@ -254,6 +254,8 @@ class ParsedReadMoreState extends State<ParsedReadMore> {
           ...widget.parser.getSentenceList(
             maxShowCharactersLength: maxShowCharactersLength,
             effectiveTextStyle: effectiveTextStyle,
+            defaultHighlightStyle:
+                widget.parser.targetTextHighlights?.defaultHighlightStyle,
             allTextHighlights: _allTextHighlights,
             allUrlRanges: _allUrlRanges,
             allIndexTargetTextHighlightsMap: _allIndexTargetTextHighlightsMap,

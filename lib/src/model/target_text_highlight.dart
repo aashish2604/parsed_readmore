@@ -3,18 +3,19 @@ import 'package:flutter/material.dart';
 class TargetTextHighlight {
   const TargetTextHighlight({
     required this.targetText,
-    required this.style,
-    required this.priority,
+    this.priority,
+    this.style,
     this.onTap,
     this.caseSensitive = false,
     this.highlightInUrl = false,
-  });
+  }) : assert(
+          (priority == null && style == null) ||
+              (priority != null && style != null),
+          'priority and style must both be null or both be non-null.',
+        );
 
   /// The regex pattern to match the target text
   final String targetText;
-
-  /// User defined text style for the specific target
-  final TextStyle style;
 
   /// Callback function to be called when the highlight text is clicked
   final void Function(TextRange range)? onTap;
@@ -23,9 +24,11 @@ class TargetTextHighlight {
   /// the pattern in the URL should be highlighted or not
   final bool highlightInUrl;
 
-
   /// if case sensitive is true
   final bool caseSensitive;
+
+  /// User defined text style for the specific target
+  final TextStyle? style;
 
   /// Which targetText style should be given priority.
   /// If there are two targets with same substring, then the higher
@@ -34,12 +37,14 @@ class TargetTextHighlight {
   ///
   /// e.g. If there are two targets 'ant' and 'pant'. As word `Pantry`, contains
   /// 'ant' and 'pant', as we see two targets with same substring 'ant'.
-  final int priority;
+  final int? priority;
 }
 
 class TargetTextHighlights {
-  TargetTextHighlights([this.targetHighlights = const <TargetTextHighlight>[]])
-      : assert(
+  TargetTextHighlights({
+    this.targetHighlights = const <TargetTextHighlight>[],
+    this.defaultHighlightStyle,
+  })  : assert(
           _uniqueTargetTexts(targetHighlights),
           'Each target text should be unique. Duplicate text found: ${_duplicateTargetText(targetHighlights)}.',
         ),
@@ -50,8 +55,28 @@ class TargetTextHighlights {
 
   final List<TargetTextHighlight> targetHighlights;
 
+  /// Default text style to be applied when multiple highlights share the same
+  /// style. Instead of passing the same style redundantly for
+  /// individual highlights, you can specify it here as a fallback.
+  final TextStyle? defaultHighlightStyle;
+
   void _sortTargetTextHighlight() {
-    targetHighlights.sort((a, b) => b.priority.compareTo(a.priority));
+    targetHighlights.sort((a, b) {
+      final aPriority = a.priority;
+      final bPriority = b.priority;
+      if (aPriority == null && bPriority == null) {
+        return 0;
+      }
+
+      if (aPriority == null) {
+        return 1;
+      }
+
+      if (bPriority == null) {
+        return -1;
+      }
+      return bPriority.compareTo(aPriority);
+    });
   }
 
   bool get isEmpty => targetHighlights.isEmpty;
@@ -68,8 +93,11 @@ class TargetTextHighlights {
     Iterable<TargetTextHighlight> highlights,
   ) {
     final Set<String> targetTexts = <String>{};
-    for (TargetTextHighlight highlight in highlights) {
+
+    for (final highlight in highlights) {
       if (!targetTexts.add(highlight.targetText)) {
+        // If adding the target text to the set returns false, it means the 
+        // target text was already in the set
         return false;
       }
     }
@@ -93,9 +121,22 @@ class TargetTextHighlights {
     Iterable<TargetTextHighlight> highlights,
   ) {
     final Set<int> priorities = <int>{};
+    int nonNullPriorityCount = 0;
+
     for (TargetTextHighlight highlight in highlights) {
-      priorities.add(highlight.priority);
+      final priority = highlight.priority;
+      if (priority == null) {
+        continue;
+      }
+      if (!priorities.add(priority)) {
+        // If adding the priority to the set returns false,
+        // it means the priority was already in the set
+        return false;
+      }
+      nonNullPriorityCount++;
     }
-    return priorities.length == highlights.length;
+    // Ensure the number of unique non-null priorities matches
+    //the number of non-null priority highlights
+    return priorities.length == nonNullPriorityCount;
   }
 }

@@ -94,6 +94,7 @@ class TextHighlightParser {
   List<TextSpan> getSentenceList({
     required int maxShowCharactersLength,
     required TextStyle effectiveTextStyle,
+    required TextStyle? defaultHighlightStyle,
     required List<TextHighlight> allTextHighlights,
     required Iterable<TextRange> allUrlRanges,
     required Map<int, TargetTextHighlights> allIndexTargetTextHighlightsMap,
@@ -103,7 +104,7 @@ class TextHighlightParser {
     final allIndexes = Set<int>.unmodifiable(
       Iterable<int>.generate(maxShowCharactersLength + 1),
     );
-    
+
     final textHighlightRangesIndexes = allTextHighlights
         .expand(
           (textHighlight) => textHighlight.highlightRanges.expand(
@@ -213,6 +214,7 @@ class TextHighlightParser {
           urlRangeIndexes: urlRangeIndexes,
           targetSubStringHighlightIndexes: targetSubStringHighlightIndexes,
           effectiveTextStyle: effectiveTextStyle,
+          defaultHighlightStyle: defaultHighlightStyle,
           overrideOnTap: (_) {
             onTapLinkCallback();
           },
@@ -245,6 +247,7 @@ class TextHighlightParser {
           highlightRange: highlightRange,
           highlightRangeIndexes: highlightRangeIndexes,
           effectiveTextStyle: effectiveTextStyle,
+          defaultHighlightStyle: defaultHighlightStyle,
           allIndexTargetTextHighlightsMap: allIndexTargetTextHighlightsMap,
           trackActiveTapGesture: trackActiveTapGesture,
         );
@@ -284,6 +287,7 @@ class TextHighlightParser {
     required Set<int> urlRangeIndexes,
     required Set<int> targetSubStringHighlightIndexes,
     required TextStyle effectiveTextStyle,
+    required TextStyle? defaultHighlightStyle,
     required Map<int, TargetTextHighlights> allIndexTargetTextHighlightsMap,
     required bool Function(TargetTextHighlight) shouldApplyHighlight,
     required void Function(TapGestureRecognizer recognizer)
@@ -309,6 +313,7 @@ class TextHighlightParser {
       indexTargetTextHighlightsMap: indexTargetTextHighlightsMap,
       highlightRangeIndexes: urlRangeIndexes,
       effectiveTextStyle: effectiveTextStyle,
+      defaultHighlightStyle: defaultHighlightStyle,
       overrideOnTap: overrideOnTap,
       trackActiveTapGesture: trackActiveTapGesture,
     );
@@ -318,6 +323,7 @@ class TextHighlightParser {
     required TextRange highlightRange,
     required Set<int> highlightRangeIndexes,
     required TextStyle effectiveTextStyle,
+    required TextStyle? defaultHighlightStyle,
     required Map<int, TargetTextHighlights> allIndexTargetTextHighlightsMap,
     required void Function(TapGestureRecognizer recognizer)
         trackActiveTapGesture,
@@ -336,6 +342,7 @@ class TextHighlightParser {
       indexTargetTextHighlightsMap: indexTargetTextHighlightsMap,
       highlightRangeIndexes: highlightRangeIndexes,
       effectiveTextStyle: effectiveTextStyle,
+      defaultHighlightStyle: defaultHighlightStyle,
       trackActiveTapGesture: trackActiveTapGesture,
     );
   }
@@ -344,6 +351,8 @@ class TextHighlightParser {
     required Map<int, TargetTextHighlight> indexTargetTextHighlightsMap,
     required Set<int> highlightRangeIndexes,
     required TextStyle effectiveTextStyle,
+    required TextStyle? defaultHighlightStyle,
+
     // The below function is used to track active tap gesture
     // so that when the widget is disposed, the active tap gesture
     // is cancelled.
@@ -396,14 +405,18 @@ class TextHighlightParser {
         highlightTextSpans.add(
           TextSpan(
             text: text,
-            style: targetHighlight.style,
+            style: targetHighlight.style ?? defaultHighlightStyle,
             recognizer: recognizer,
           ),
         );
         trackActiveTapGesture(recognizer);
       } else {
-        highlightTextSpans
-            .add(TextSpan(text: text, style: targetHighlight.style));
+        highlightTextSpans.add(
+          TextSpan(
+            text: text,
+            style: targetHighlight.style ?? defaultHighlightStyle,
+          ),
+        );
       }
 
       // We have -1 as end index is also increased by 1, and when next time
@@ -595,7 +608,7 @@ class TextHighlightParser {
             targetTextHighlightsMap[indexValue]?.targetHighlights ?? [];
         targetHighlights.add(textHighlight.targetHighlight);
         targetTextHighlightsMap[indexValue] =
-            TargetTextHighlights(targetHighlights);
+            TargetTextHighlights(targetHighlights: targetHighlights);
       }
     }
 
