@@ -150,7 +150,7 @@ class CustomValuesPackage extends StatelessWidget {
                     ),
                   );
                 },
-                targetTextHighlights: TargetTextHighlights([
+                targetTextHighlights: TargetTextHighlights(targetHighlights: [
                   TargetTextHighlight(
                     priority: 1,
                     targetText: 'We',
