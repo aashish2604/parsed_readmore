@@ -2,6 +2,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:parsed_readmore/src/parser.dart';
 import 'package:parsed_readmore/src/target_text_highlight.dart';
+import 'package:parsed_readmore/src/util/regex.dart';
 
 enum TrimMode {
   length,
@@ -9,29 +10,31 @@ enum TrimMode {
 }
 
 class ParsedReadMore extends StatefulWidget {
-  const ParsedReadMore(this.data,
-      {Key? key,
-      this.trimExpandedText = 'show less',
-      this.trimCollapsedText = 'read more',
-      this.colorClickableText,
-      this.trimLength = 240,
-      this.trimLines = 2,
-      this.trimMode = TrimMode.length,
-      this.urlTextStyle,
-      this.style,
-      this.textAlign,
-      this.textDirection,
-      this.locale,
-      this.textScaleFactor,
-      this.semanticsLabel,
-      this.moreStyle,
-      this.lessStyle,
-      this.delimiter = ' $_kEllipsis',
-      this.delimiterStyle,
-      this.callback,
-      this.onTapLink,
-      this.highlightText})
-      : super(key: key);
+  const ParsedReadMore(
+    this.data, {
+    Key? key,
+    this.trimExpandedText = 'show less',
+    this.trimCollapsedText = 'read more',
+    this.colorClickableText,
+    this.trimLength = 240,
+    this.trimLines = 2,
+    this.trimMode = TrimMode.length,
+    this.urlTextStyle,
+    this.style,
+    this.textAlign,
+    this.textDirection,
+    this.locale,
+    this.textScaleFactor,
+    this.semanticsLabel,
+    this.moreStyle,
+    this.lessStyle,
+    this.delimiter = ' $_kEllipsis',
+    this.delimiterStyle,
+    this.callback,
+    this.onTapLink,
+    this.highlightText,
+    this.urlRegex = kUrlRegEx,
+  }) : super(key: key);
 
   /// Used on TrimMode.Length
   final int trimLength;
@@ -60,6 +63,10 @@ class ParsedReadMore extends StatefulWidget {
 
   /// Add specified style to target texts in the list
   final TargetTextHighlight? highlightText;
+
+  /// The regex formula to validate if the string is clickable or not.
+  /// If defaults to [kUrlRegEx] matching urls like: "www.url.com" && "url.com" && "http/s://www.url.com" and similar.
+  final String urlRegex;
 
   final String delimiter;
   final TextStyle? urlTextStyle;
@@ -137,12 +144,14 @@ class ParsedReadMoreState extends State<ParsedReadMore> {
     );
 
     Parser parser = Parser(
-        readMore: _readMore,
-        trimMode: widget.trimMode,
-        urlTextStyle: widget.urlTextStyle,
-        effectiveTextStyle: effectiveTextStyle,
-        onTapLink: widget.onTapLink,
-        highlightText: widget.highlightText);
+      readMore: _readMore,
+      trimMode: widget.trimMode,
+      urlTextStyle: widget.urlTextStyle,
+      effectiveTextStyle: effectiveTextStyle,
+      onTapLink: widget.onTapLink,
+      highlightText: widget.highlightText,
+      urlRegex: widget.urlRegex,
+    );
 
     Widget result = LayoutBuilder(
       builder: (BuildContext context, BoxConstraints constraints) {
