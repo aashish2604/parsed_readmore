@@ -12,14 +12,17 @@ class Parser {
   TextStyle? effectiveTextStyle;
   void Function(String url)? onTapLink;
   TargetTextHighlight? highlightText;
+  String urlRegex;
 
-  Parser(
-      {required this.readMore,
-      required this.trimMode,
-      required this.urlTextStyle,
-      required this.effectiveTextStyle,
-      required this.onTapLink,
-      required this.highlightText});
+  Parser({
+    required this.readMore,
+    required this.trimMode,
+    required this.urlTextStyle,
+    required this.effectiveTextStyle,
+    required this.onTapLink,
+    required this.highlightText,
+    required this.urlRegex,
+  });
 
   // Function to get the occurances of string in the spans
   List<int> findWordOccurrences(String text, String word) {
@@ -102,7 +105,7 @@ class Parser {
   List<TextSpan> getSentenceList(String s,
       [int? limit, bool condition = false]) {
     // int lengthSum = 0;
-    final RegExp exp = RegExp(kUrlRegEx);
+    final RegExp exp = RegExp(urlRegex);
     final Iterable<RegExpMatch> matches = exp.allMatches(s);
     final Map<int, int> indices = {};
     for (var match in matches) {

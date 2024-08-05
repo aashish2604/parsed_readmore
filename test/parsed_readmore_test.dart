@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:parsed_readmore/parsed_readmore.dart';
 import 'package:parsed_readmore/src/parser.dart';
 import 'package:parsed_readmore/src/util/colors.dart';
+import 'package:parsed_readmore/src/util/regex.dart';
 
 void main() {
   test('Parser can be created', () {
@@ -13,6 +14,7 @@ void main() {
       effectiveTextStyle: const TextStyle(),
       onTapLink: (url) {},
       highlightText: null,
+      urlRegex: kUrlRegEx,
     );
     expect(parser, isNotNull);
   });
@@ -25,6 +27,7 @@ void main() {
       effectiveTextStyle: const TextStyle(),
       onTapLink: (url) {},
       highlightText: null,
+      urlRegex: kUrlRegEx,
     );
 
     const inputText = 'Visit my website at https://example.com';
@@ -42,6 +45,7 @@ void main() {
       effectiveTextStyle: const TextStyle(),
       onTapLink: null,
       highlightText: null,
+      urlRegex: kUrlRegEx,
     );
 
     const inputText = 'Visit my website at https://example.com';
@@ -62,6 +66,7 @@ void main() {
       effectiveTextStyle: const TextStyle(),
       onTapLink: (url) {},
       highlightText: null,
+      urlRegex: kUrlRegEx,
     );
 
     const inputText = 'Visit my website at https://example.com';
@@ -80,6 +85,7 @@ void main() {
       effectiveTextStyle: const TextStyle(),
       onTapLink: (url) {},
       highlightText: null,
+      urlRegex: kUrlRegEx,
     );
 
     const inputText = 'This is a regular text.';
@@ -98,6 +104,7 @@ void main() {
       onTapLink: (url) {},
       highlightText: TargetTextHighlight(
           targetText: 'example', style: const TextStyle(color: Colors.red)),
+      urlRegex: kUrlRegEx,
     );
 
     const inputText = 'Visit my example website at a website.com';
