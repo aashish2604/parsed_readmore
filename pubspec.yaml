@@ -1,6 +1,6 @@
 name: parsed_readmore
 description: A Flutter text widget which is expandable and can automatically parse urls present in the text it into clickable links.
-version: 0.0.9
+version: 0.1.0
 repository: https://github.com/aashish2604/parsed_readmore
 homepage:
 
