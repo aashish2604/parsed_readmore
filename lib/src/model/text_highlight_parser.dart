@@ -139,6 +139,10 @@ class TextHighlightParser {
         allIndexes.difference(allHighlightIndexesSet).toList()..sort();
     final textSpans = <TextSpan>[];
 
+    if (maxShowCharactersLength == 0) {
+      return textSpans;
+    }
+
     for (var i = 0; i < maxShowCharactersLength + 1; i++) {
       // We have -1 as end index is also increased by 1, and when next time
       // the loop is execute it will be increase by one as [i++]. So,
