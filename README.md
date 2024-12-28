@@ -12,7 +12,7 @@ and the Flutter guide for
 -->
 # **Parsed Readmore**
 
-A Flutter package which allows the user to enter text which can be collapsed and expanded based on user defined trimming conditions. Nevertheless, it will automatically parse the urls present in the text into clickable hyperlinks. It also allows the user to enter a highlight text on which some custom text style can be applied.
+A Flutter package which allows the user to enter text which can be collapsed and expanded based on user defined trimming conditions. Nevertheless, it will automatically parse the user regex patterns (urls by default) present in the text into clickable hyperlinks with a user defined click action (browser launch by default). It also allows the user to enter a highlight text on which some custom text style can be applied with the support of multiple text phrases (priority based).
 
 Latest release: https://pub.dev/packages/parsed_readmore
 
@@ -23,9 +23,10 @@ Latest release: https://pub.dev/packages/parsed_readmore
 * Option to include a customised delimiter.
 * Automatically parses the urls present in the text into hyperlinks which launches the browser on click event (default behaviour).
 * All the text components including the parsed urls, delimiter, clickable texts, etc can be given seperate custom styles.
-* Addition of user defined action on clicking the hyperlinks **(latest addition)**.
-* Option to add custom text styles for target text **(latest addition)**.
-
+* Addition of user defined action on clicking the hyperlinks.
+* Using custom text styles for target text (also refered as text highlighting).
+* Multiword highlighting. We are using priority (int) to resolve the clash of phrases. For example, if we have 2 phrases 'the' and 't' and the priority of 't' is higher then the style of letter 't' will be used while 'he' of 'the' will have the style of the style of 'the'. **(latest)**
+* Option to use custom regex for Url/pattern regonition. **(latest)**
 # Installation
 
 Run this command in your terminal

@@ -10,6 +10,7 @@ import 'package:url_launcher/url_launcher.dart';
 class TextHighlightParser {
   const TextHighlightParser({
     required this.data,
+    this.urlRegex = kUrlRegEx,
     this.targetTextHighlights,
     this.onTapLink,
     this.urlTextStyle,
@@ -26,6 +27,17 @@ class TextHighlightParser {
 
   /// The text to be parsed
   final String data;
+
+  /// Url pattern in string form which would be detected by the package, like `r'is`'.
+  /// 
+  /// The default pattern is meant to detect the urls which starts with `https://` or `https://` or `ftp://`.
+  /// 
+  /// The default also detects the urls which don't start with `https` or `http` like `example.com` or `example.net`.
+  /// So in summary the deafult behavior detects urls like:
+  /// - `example.com`,
+  /// - `https://example.com`,
+  /// - `https://www.example.com/path?query=1#fragment`.
+  final String urlRegex;
 
   /// The target text highlights
   final TargetTextHighlights? targetTextHighlights;
@@ -54,7 +66,7 @@ class TextHighlightParser {
   final TrimMode trimMode;
 
   Iterable<TextRange> findUrlRanges() sync* {
-    final urlRegex = RegExp(kUrlRegEx);
+    final urlRegex = RegExp(this.urlRegex);
 
     final matches = urlRegex.allMatches(data);
 

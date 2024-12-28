@@ -133,6 +133,7 @@ class CustomValuesPackage extends StatelessWidget {
             const SizedBox(height: 12),
             ParsedReadMore(
               TextHighlightParser(
+                urlRegex: r'https:\/\/[^\s]+',
                 data: inputData,
                 initialState: ReadMoreState.collapsed,
                 urlTextStyle: textStyle.copyWith(
@@ -153,39 +154,29 @@ class CustomValuesPackage extends StatelessWidget {
                 targetTextHighlights: TargetTextHighlights(targetHighlights: [
                   TargetTextHighlight(
                     priority: 1,
-                    targetText: 'We',
+                    targetText: 'The',
                     style: TextStyle(
                       fontSize: 20.0,
                       fontStyle: FontStyle.italic,
                       color: Colors.blue[900],
                     ),
                   ),
-                  const TargetTextHighlight(
-                    priority: 2,
-                    targetText: 't',
-                    highlightInUrl: true,
-                    style: TextStyle(
-                      fontSize: 20.0,
-                      color: Colors.purple,
-                    ),
-                  ),
                   TargetTextHighlight(
-                    priority: 3,
-                    targetText: 'e',
-                    highlightInUrl: true,
-                    style: const TextStyle(
-                      fontSize: 20.0,
-                      color: Colors.orange,
-                    ),
-                    onTap: (range) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                              "${range.textInside(inputData)} is between ${range.start} and ${range.end}"),
-                        ),
-                      );
-                    },
-                  ),
+                      priority: 2,
+                      targetText: 'he',
+                      highlightInUrl: true,
+                      style: const TextStyle(
+                        fontSize: 20.0,
+                        color: Colors.purple,
+                      ),
+                      onTap: (range) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                                "'${range.textInside(inputData)}' is between the character no ${range.start} and ${range.end}"),
+                          ),
+                        );
+                      }),
                 ]),
               ),
               readMoreDelimiter: '+++',
