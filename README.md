@@ -12,6 +12,8 @@ and the Flutter guide for
 -->
 # **Parsed Readmore**
 
+### Latest version has BREAKING CHANGES !
+
 A Flutter package which allows the user to enter text which can be collapsed and expanded based on user defined trimming conditions. Nevertheless, it will automatically parse the user regex patterns (urls by default) present in the text into clickable hyperlinks with a user defined click action (browser launch by default). It also allows the user to enter a highlight text on which some custom text style can be applied with the support of multiple text phrases (priority based).
 
 Latest release: https://pub.dev/packages/parsed_readmore
