@@ -35,3 +35,9 @@
 
 * updated the deprecated parts of code
 * updated the dependencies and documentation
+
+## 1.0.0 (Breaking changes)
+
+* Added multiple phrase highlighting (priority based in case of clash)
+* Click event for phrases
+* Custom regex for url detection
