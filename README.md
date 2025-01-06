@@ -59,7 +59,7 @@ Here we are using the simple Text() widget available in Flutter by default.
 ```dart
   Text(inputString);
 ```
-<img src="https://firebasestorage.googleapis.com/v0/b/tictactoe-b60c3.appspot.com/o/without.gif?alt=media&token=fa9831a9-c4e4-4e72-9271-cae4e0c24444&_gl=1*1adugm3*_ga*MTI2ODIxNDA3MS4xNjk2MzU4MDY5*_ga_CW55HF8NVT*MTY5Nzk2Nzg3NS4zNC4xLjE2OTc5Njg2NzUuNjAuMC4w" alt="Plain Text" width="300" height="auto">
+<img src="https://firebasestorage.googleapis.com/v0/b/tictactoe-b60c3.appspot.com/o/without_package.gif?alt=media&token=2da65bc3-345f-406a-aaaa-81130207adc2" alt="Plain Text" width="300" height="auto">
 
 We can clearly see that no url is parsed here into clickable texts and there is no option to expand and collapse the texts.
 
@@ -67,16 +67,17 @@ We can clearly see that no url is parsed here into clickable texts and there is 
 ### Using package with default values
 
 ```dart
-ParsedReadMore(inputString)
+ParsedReadMore(TextHighlightParser(data: inputData))
 ```
-<img src="https://firebasestorage.googleapis.com/v0/b/tictactoe-b60c3.appspot.com/o/default.gif?alt=media&token=0571009a-b1e0-44ff-b436-8b44c1256eec&_gl=1*pbw5w9*_ga*MTI2ODIxNDA3MS4xNjk2MzU4MDY5*_ga_CW55HF8NVT*MTY5Nzk2Nzg3NS4zNC4xLjE2OTc5Njg2NTIuMjEuMC4w" alt="Default Package" width="300" height="auto">
+<img src="https://firebasestorage.googleapis.com/v0/b/tictactoe-b60c3.appspot.com/o/default_package.gif?alt=media&token=4811bb7e-a63f-4d6c-ba3f-30759edf1d5d" alt="Default Package" width="300" height="auto">
 
 The code above will implement all features of the widget with the default values which are :
 * trimMode = TrimMode.length
 * delimiter = ' ...'
 * trimLength = 240
-* trimExpandedText = 'show less',
-* trimCollapsedText = 'read more',
+* readLessText = 'show less',
+* readMoreText = 'read more',
+* urlRegex = r'([\w+]+\:\/\/)?([\w\d-]+\.)*[\w-]+[\.][a-z0-9_]+([\/\?\=\&\#\.]?[\w-]){1,}\/?' (regex for url detection)
 * if onTapLink == null --> url will be launched in extrenal browser.
 
 Here the urls are parsed into clickable links which open external browser on tapping. The text is also collapsable and expandable
@@ -87,33 +88,76 @@ Here the urls are parsed into clickable links which open external browser on tap
   
 ```dart
 ParsedReadMore(
-    inputString,
-    urlTextStyle: TextStyle(color: Colors.green, fontSize: 20, decoration: TextDecoration.underline),
+  TextHighlightParser(
+    urlRegex: r'https:\/\/[^\s]+',
+    data: inputData,
+    initialState: ReadMoreState.collapsed,
+    urlTextStyle: textStyle.copyWith(
+      color: Colors.green,
+      decoration: TextDecoration.underline,
+    ),
     trimMode: TrimMode.line,
-    trimLines: 4,
-    delimiter: '  ***',
-    delimiterStyle: TextStyle(color: Colors.black, fontSize: 20),
-    style: TextStyle(color: Colors.orange, fontSize: 20),
+    maxLines: 2,
     onTapLink: (url) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
           content: Text(
-              '$url is displayed because we have used custom onTap function for hyperlinks')));
+            """'$url' is displayed because we have used custom onTap function for hyperlinks""",
+          ),
+        ),
+      );
     },
-    highlightText: TargetTextHighlight(
-        targetText: 'the',
-        style: const TextStyle(
+    targetTextHighlights: TargetTextHighlights(targetHighlights: [
+      TargetTextHighlight(
+        priority: 1,
+        targetText: 'The',
+        style: TextStyle(
+          fontSize: 20.0,
+          fontStyle: FontStyle.italic,
+          color: Colors.blue[900],
+        ),
+      ),
+      TargetTextHighlight(
+          priority: 2,
+          targetText: 'he',
+          highlightInUrl: true,
+          style: const TextStyle(
             fontSize: 20.0,
-            fontStyle: FontStyle.italic,
-            color: Colors.purple)),
-    trimCollapsedText: 'expand',
-    trimExpandedText: 'compress',
-    moreStyle: TextStyle(color: Colors.red, fontSize: 20),
-    lessStyle: TextStyle(color: Colors.blue, fontSize: 20),
+            color: Colors.purple,
+          ),
+          onTap: (range) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                    "'${range.textInside(inputData)}' is between the character no ${range.start} and ${range.end}"),
+              ),
+            );
+          }),
+    ]),
+  ),
+  readMoreDelimiter: '+++',
+  readLessDelimiter: ' ---',
+  readMoreDelimiterStyle: textStyle.copyWith(color: Colors.black),
+  readLessDelimiterStyle: textStyle.copyWith(color: Colors.black),
+  style: textStyle.copyWith(color: Colors.grey),
+  readMoreText: ' expand',
+  readLessText: ' compress',
+  readMoreTextStyle: textStyle.copyWith(color: Colors.blue),
+  readLessTextStyle: textStyle.copyWith(color: Colors.pink),
 )
 ```
-<img src="https://firebasestorage.googleapis.com/v0/b/tictactoe-b60c3.appspot.com/o/custom.gif?alt=media&token=e32867c5-596b-4b0a-abf5-4c1c26f49fe9&_gl=1*nc4juk*_ga*MTI2ODIxNDA3MS4xNjk2MzU4MDY5*_ga_CW55HF8NVT*MTY5Nzk2Nzg3NS4zNC4xLjE2OTc5Njg2MTMuNjAuMC4w" alt="Custom Package" width="300" height="auto">
+<img src="https://firebasestorage.googleapis.com/v0/b/tictactoe-b60c3.appspot.com/o/custom_package.gif?alt=media&token=29289e79-f8e6-4fba-8a05-8b5f8b4c1b34" alt="Custom Package" width="300" height="auto">
 
-In this case we can see that all of our custom parameters specified above are visible in the text. We have different textstyles for urls, highlight text and the leftover text. Moreover, we have a custom delimiter and a user defined onTapLink function for the hyperlinks which opens a snackbar instead of launching the urls. The expand and collapse tags are also having custom text values with seperate user defined text styles.
+#### Highlight points here:
+* Custom regex for recognizing only the 'https' urls.
+* Custom text style for the urls
+* Custom click action for the Urls (Snackbar instead of browser launch)
+* Multiple text highlights using 'targetTextHighlights' attribute
+* Custom text style and click actions (optional) for the highlights
+* An important point to note here is that, In case of clash of the mutliples highlights, we are using the 'priority' attribute of each TargetTextHighlight. The target text having numerical value of the priority greater will be override the style of the lower priority highlight.
+* Custom delimiters
+* Custom text style for the non-url and the non-highlight texts
+* Custom readMore and readLess texts
 
 # Issues
 
